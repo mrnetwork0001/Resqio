@@ -64,6 +64,9 @@ class Settings:
 
     # Behavior
     demo_mode: bool = field(default_factory=lambda: _bool("RESQIO_DEMO_MODE", True))
+    match_ttl_minutes: int = field(
+        default_factory=lambda: int(_env("RESQIO_MATCH_TTL_MINUTES", "45"))
+    )
     store_path: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "store.json")
     demo_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "demo")
 

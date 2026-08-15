@@ -48,8 +48,18 @@ class TwilioWhatsAppDispatcher:
         pings: list[ApprovalPing] = []
         captains = self._settings.captain_numbers or ("console",)
         for captain in captains:
-            if self.live and captain != "console":
-                ping = self._send_via_twilio(match_id, captain, message_body)
+            sendable = (
+                self.live
+                and captain != "console"
+                # An SMS captain with no SMS sender configured can't be reached.
+                and (captain.startswith("whatsapp:") or bool(self._settings.twilio_sms_from))
+            )
+            if sendable:
+                try:
+                    ping = self._send_via_twilio(match_id, captain, message_body)
+                except Exception as exc:  # noqa: BLE001 — one bad number must not strand the match
+                    logger.error("Twilio send to %s failed (%s); falling back to console", captain, exc)
+                    ping = self._send_via_console(match_id, captain, message_body)
             else:
                 ping = self._send_via_console(match_id, captain, message_body)
             pings.append(ping)

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from datetime import timedelta
 
 from .agents.strands_grid_monitor import StrandsGridMonitor
 from .agents.strands_resource_matcher import StrandsResourceMatcher
@@ -27,7 +28,8 @@ from .core.models import (
     ResourceOffer,
     RouteInfo,
 )
-from .core.store import CommunityStore
+from .core.models import utcnow
+from .core.store import CommunityStore, InvalidTransition
 from .integrations.twilio_whatsapp_dispatcher import TwilioWhatsAppDispatcher
 
 logger = logging.getLogger("resqio.pipeline")
@@ -68,6 +70,7 @@ class ResqioPipeline:
 
     def run_cycle(self) -> CycleReport:
         """One full monitor → match → route → ping pass. Never raises."""
+        self._expire_stale_matches()
         events = self.monitor.poll()
         assessment = self.monitor.assess(events)
         report = CycleReport(assessment=assessment)
@@ -78,19 +81,39 @@ class ResqioPipeline:
 
         logger.info("cycle: CRISIS level %s — activating logistics", assessment.crisis_level)
         for match in self.matcher.propose_matches(assessment):
-            offer = self.store.offers[match.offer_id]
-            request = self.store.requests[match.request_id]
-            plan = self.router.plan_route(match, offer, request, events)
-            match.route = RouteInfo(
-                distance_km=plan.distance_km,
-                est_minutes=plan.est_minutes,
-                hazards=plan.hazards,
-                instructions=plan.instructions,
-            )
-            self.store.set_match_status(match.id, MatchStatus.PENDING_APPROVAL)
-            report.new_matches.append(match)
-            report.pings.extend(self.dispatcher.send_approval_ping(match.id, plan.ping_message))
+            # One bad match (routing error, dispatch error) must not stop
+            # the rest of the cycle or kill the 24/7 loop.
+            try:
+                self._route_and_ping(match, events, report)
+            except Exception:  # noqa: BLE001
+                logger.exception("processing match %s failed; continuing cycle", match.id)
         return report
+
+    def _route_and_ping(self, match: Match, events, report: CycleReport) -> None:
+        offer = self.store.offers[match.offer_id]
+        request = self.store.requests[match.request_id]
+        plan = self.router.plan_route(match, offer, request, events)
+        match.route = RouteInfo(
+            distance_km=plan.distance_km,
+            est_minutes=plan.est_minutes,
+            hazards=plan.hazards,
+            instructions=plan.instructions,
+        )
+        self.store.set_match_status(match.id, MatchStatus.PENDING_APPROVAL)
+        report.new_matches.append(match)
+        report.pings.extend(self.dispatcher.send_approval_ping(match.id, plan.ping_message))
+
+    def _expire_stale_matches(self) -> None:
+        """Free resources locked behind pings nobody ever answered."""
+        ttl = timedelta(minutes=self.settings.match_ttl_minutes)
+        now = utcnow()
+        for match in self.store.awaiting_action_matches():
+            if now - match.created_at > ttl:
+                self.store.set_match_status(match.id, MatchStatus.EXPIRED)
+                logger.info(
+                    "match %s expired after %s min without approval; both sides reopened",
+                    match.id, self.settings.match_ttl_minutes,
+                )
 
     # ── Inbound SMS/WhatsApp (webhook or seeded demo messages) ───────
 
@@ -105,30 +128,42 @@ class ResqioPipeline:
         logger.info("ingested request %s from %s", result.id, name)
         return "Resqio: your request is logged. We're matching it against nearby offers and will confirm shortly."
 
+    _REPLY_TARGETS = {
+        "accept": MatchStatus.APPROVED,
+        "pass": MatchStatus.DECLINED,
+        "delivered": MatchStatus.DELIVERED,
+    }
+
     def _handle_reply(self, parsed: ParsedInboundMessage) -> str:
+        if parsed.kind not in self._REPLY_TARGETS:
+            return (
+                "Resqio: I couldn't read that. Text OFFER: <what you can share + where> "
+                "or HELP: <what you need + where>."
+            )
         match = self.store.get_match(parsed.match_id) if parsed.match_id else None
+        if match is None:
+            return (
+                f"Resqio: couldn't find that match id. Reply {parsed.kind.upper()} <match_id> "
+                "exactly as pinged."
+            )
+        # The state machine guards against stale replies: a second captain's
+        # PASS after someone already ACCEPTed must not reopen the delivery.
+        try:
+            self.store.set_match_status(match.id, self._REPLY_TARGETS[parsed.kind])
+        except InvalidTransition:
+            logger.info("stale %s reply for match %s (already %s)", parsed.kind, match.id, match.status.value)
+            return (
+                f"Resqio: match {match.id} is already {match.status.value.replace('_', ' ')} "
+                "— no change made."
+            )
         if parsed.kind == "accept":
-            if match is None:
-                return "Resqio: couldn't find that match id. Reply ACCEPT <match_id> exactly as pinged."
-            self.store.set_match_status(match.id, MatchStatus.APPROVED)
             logger.info("match %s APPROVED by captain", match.id)
             return f"Resqio: match {match.id} approved ✔ — reply DELIVERED {match.id} once the drop-off is done. Stay safe."
         if parsed.kind == "pass":
-            if match is None:
-                return "Resqio: couldn't find that match id. Reply PASS <match_id> exactly as pinged."
-            self.store.set_match_status(match.id, MatchStatus.DECLINED)
             logger.info("match %s declined; both sides reopened", match.id)
             return f"Resqio: match {match.id} passed — the offer and request are back on the board for re-matching."
-        if parsed.kind == "delivered":
-            if match is None:
-                return "Resqio: couldn't find that match id. Reply DELIVERED <match_id>."
-            self.store.set_match_status(match.id, MatchStatus.DELIVERED)
-            logger.info("match %s DELIVERED", match.id)
-            return f"Resqio: delivery {match.id} confirmed 🎉 — thank you."
-        return (
-            "Resqio: I couldn't read that. Text OFFER: <what you can share + where> "
-            "or HELP: <what you need + where>."
-        )
+        logger.info("match %s DELIVERED", match.id)
+        return f"Resqio: delivery {match.id} confirmed 🎉 — thank you."
 
     # ── Status (dashboard / AgentCore status action) ─────────────────
 

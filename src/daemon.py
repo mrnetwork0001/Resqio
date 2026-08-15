@@ -2,6 +2,10 @@
 
     python -m src.daemon              # poll forever at POLL_INTERVAL_SECONDS
     python -m src.daemon --cycles 3   # bounded run (demos, smoke tests)
+
+The store is single-writer: do NOT run this alongside the webhook server on
+the same store file — the webhook server already embeds this poll loop, so
+for live inbound SMS use `python -m src.integrations.webhook_server` alone.
 """
 
 from __future__ import annotations
@@ -32,12 +36,16 @@ def main() -> None:
     cycle = 0
     while True:
         cycle += 1
-        report = pipeline.run_cycle()
-        logger.info(
-            "cycle %d: crisis=%s level=%d matches=%d pings=%d",
-            cycle, report.assessment.is_crisis, report.assessment.crisis_level,
-            len(report.new_matches), len(report.pings),
-        )
+        # A 24/7 monitor must survive any single bad cycle.
+        try:
+            report = pipeline.run_cycle()
+            logger.info(
+                "cycle %d: crisis=%s level=%d matches=%d pings=%d",
+                cycle, report.assessment.is_crisis, report.assessment.crisis_level,
+                len(report.new_matches), len(report.pings),
+            )
+        except Exception:  # noqa: BLE001
+            logger.exception("cycle %d failed; continuing", cycle)
         if args.cycles and cycle >= args.cycles:
             break
         time.sleep(interval)

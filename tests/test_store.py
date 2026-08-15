@@ -30,6 +30,8 @@ def test_declined_match_reopens_both_sides(seeded_store):
 
 def test_delivered_match_closes_both_sides(seeded_store):
     match = seeded_store.record_match(Match(offer_id="off_generator1", request_id="req_insulin1"))
+    seeded_store.set_match_status(match.id, MatchStatus.PENDING_APPROVAL)
+    seeded_store.set_match_status(match.id, MatchStatus.APPROVED)
     seeded_store.set_match_status(match.id, MatchStatus.DELIVERED)
     assert seeded_store.offers["off_generator1"].status == EntryStatus.CLOSED
     assert seeded_store.requests["req_insulin1"].status == EntryStatus.CLOSED

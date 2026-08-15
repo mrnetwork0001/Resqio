@@ -1,17 +1,27 @@
-"""Twilio inbound webhook server (SMS + WhatsApp).
+"""Twilio inbound webhook server (SMS + WhatsApp) — the single local live runtime.
 
-    python -m src.integrations.webhook_server   # serves :5001
+    python -m src.integrations.webhook_server   # serves :5001 AND runs the poll loop
+
+This process owns the community store: it ingests inbound messages on
+POST /sms and runs the background monitor→match→route→ping loop on an
+embedded thread (disable with RESQIO_POLL_IN_WEBHOOK=0). Do NOT run
+`python -m src.daemon` against the same store file at the same time — the
+JSON-snapshot store is single-writer, and two processes would silently
+overwrite each other's board.
 
 Point the Twilio number / WhatsApp Sandbox "When a message comes in" URL at
 POST /sms (expose locally with `ngrok http 5001`). Validates the
 X-Twilio-Signature when TWILIO_AUTH_TOKEN is set, so a random POST can't
-inject offers or approve matches.
+inject offers or approve matches; behind a proxy set RESQIO_WEBHOOK_URL to
+the exact public URL Twilio calls, since signatures are computed over it.
 """
 
 from __future__ import annotations
 
 import logging
 import os
+import threading
+import time
 
 import uvicorn
 from starlette.applications import Starlette
@@ -63,5 +73,24 @@ async def inbound_sms(request: Request) -> Response:
 
 app = Starlette(routes=[Route("/sms", inbound_sms, methods=["POST"])])
 
+
+def _poll_loop() -> None:
+    interval = pipeline.settings.poll_interval_seconds
+    logger.info("embedded poll loop up (every %ss)", interval)
+    while True:
+        try:
+            report = pipeline.run_cycle()
+            logger.info(
+                "cycle: crisis=%s level=%d matches=%d pings=%d",
+                report.assessment.is_crisis, report.assessment.crisis_level,
+                len(report.new_matches), len(report.pings),
+            )
+        except Exception:  # noqa: BLE001 — the 24/7 loop survives any single bad cycle
+            logger.exception("cycle failed; continuing")
+        time.sleep(interval)
+
+
 if __name__ == "__main__":
+    if os.environ.get("RESQIO_POLL_IN_WEBHOOK", "1") == "1":
+        threading.Thread(target=_poll_loop, daemon=True, name="resqio-poll").start()
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("RESQIO_WEBHOOK_PORT", "5001")))

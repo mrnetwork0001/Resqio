@@ -34,7 +34,7 @@ from ..core.models import (
     ResourceType,
     Vulnerability,
 )
-from ..core.store import CommunityStore
+from ..core.store import CommunityStore, InvalidTransition
 
 logger = logging.getLogger("resqio.resource_matcher")
 
@@ -78,9 +78,15 @@ _RESOURCE_KEYWORDS: list[tuple[ResourceType, tuple[str, ...]]] = [
     (ResourceType.ICE, ("ice", "cooler", "dry ice")),
     (ResourceType.WATER, ("water", "bottled")),
     (ResourceType.FOOD, ("food", "meal", "groceries", "formula")),
-    (ResourceType.TRANSPORT, ("ride", "transport", "evacuat", "drive", "pickup truck")),
-    (ResourceType.SHELTER, ("shelter", "cool place", "cooling center", "spare room", "a/c", " ac ", "fan")),
+    (ResourceType.TRANSPORT, ("ride", "transport", "evacuate", "evacuation", "pickup truck")),
+    (ResourceType.SHELTER, ("shelter", "cool place", "cooling center", "spare room", "a/c", "ac", "fan")),
 ]
+
+
+def _has_keyword(keyword: str, lower_text: str) -> bool:
+    # Whole-word match: "office" must not hit "ice", "notice" must not
+    # hit "ice", "8 Oak Drive" must not read as transport.
+    return re.search(rf"\b{re.escape(keyword)}\b", lower_text) is not None
 
 _MATCH_ID_RE = re.compile(r"\b(mat_[a-z0-9]+)\b", re.IGNORECASE)
 _ADDRESS_RE = re.compile(
@@ -95,36 +101,38 @@ def heuristic_parse(body: str) -> ParsedInboundMessage:
     text = body.strip()
     # "OFFER: generator…" → description "generator…" (the tag is a signal, not content)
     description = re.sub(r"^\s*(offer|help|need|request)\s*[:\-]\s*", "", text, flags=re.IGNORECASE)
-    upper = f" {text.upper()} "
+    lower = text.lower()
 
+    # A captain reply must LEAD with the verb or carry a match id — a
+    # neighbor writing "can you pass this along, we need water" is a
+    # request, not a PASS.
+    match_id = _MATCH_ID_RE.search(text)
     for kind in ("accept", "pass", "delivered"):
-        if re.search(rf"\b{kind.upper()}\b", upper):
-            match_id = _MATCH_ID_RE.search(text)
+        if _has_keyword(kind, lower) and (match_id or lower.startswith(kind)):
             return ParsedInboundMessage(kind=kind, match_id=match_id.group(1).lower() if match_id else "")
 
     resource_type = ResourceType.OTHER
-    lower = f" {text.lower()} "
     for rtype, keywords in _RESOURCE_KEYWORDS:
-        if any(kw in lower for kw in keywords):
+        if any(_has_keyword(kw, lower) for kw in keywords):
             resource_type = rtype
             break
 
     offer_signals = ("offer", "available", "i have", "we have", "can provide", "spare", "extra", "giving away")
     request_signals = ("help", "need", "urgent", "please", "emergency", "no power", "power is out", "power out")
-    is_offer = any(s in lower for s in offer_signals)
-    is_request = any(s in lower for s in request_signals)
+    is_offer = any(_has_keyword(s, lower) for s in offer_signals)
+    is_request = any(_has_keyword(s, lower) for s in request_signals)
     # "HELP: ... available power" style messages hit both; request wins (safety bias).
     kind = "request" if is_request else ("offer" if is_offer else "unknown")
 
     urgency = 3
     vulnerability = Vulnerability.NONE
-    if any(w in lower for w in ("insulin", "oxygen", "dialysis", "refrigeration")):
+    if any(_has_keyword(w, lower) for w in ("insulin", "oxygen", "dialysis", "refrigeration")):
         urgency, vulnerability = 5, Vulnerability.MEDICAL_REFRIGERATION
-    elif any(w in lower for w in ("baby", "infant", "newborn", "month-old", "month old")):
+    elif any(_has_keyword(w, lower) for w in ("baby", "infant", "newborn", "month-old", "month old")):
         urgency, vulnerability = 4, Vulnerability.INFANT
-    elif any(w in lower for w in ("elderly", "senior", "years old", "wheelchair", "disabled")):
+    elif any(_has_keyword(w, lower) for w in ("elderly", "senior", "years old", "wheelchair", "disabled")):
         urgency, vulnerability = 4, Vulnerability.ELDERLY
-    if any(w in lower for w in ("urgent", "emergency", "asap", "life")):
+    if any(_has_keyword(w, lower) for w in ("urgent", "emergency", "asap", "life")):
         urgency = 5
 
     address = _ADDRESS_RE.search(text)
@@ -303,8 +311,13 @@ class StrandsResourceMatcher:
                 rationale=candidate.rationale,
                 distance_km=_entry_distance_km(offer, request),
             )
-            self.store.record_match(match)  # marks both sides MATCHED — prevents double-booking
-            matches.append(match)
+            try:
+                # record_match re-verifies OPEN under the store lock: a
+                # concurrent cycle that booked the same offer first wins.
+                self.store.record_match(match)
+                matches.append(match)
+            except (KeyError, InvalidTransition) as exc:
+                logger.warning("dropping match %s -> %s: %s", offer.id, request.id, exc)
         if proposal.unmet_request_ids:
             logger.info("unmet requests needing escalation: %s", proposal.unmet_request_ids)
         return matches

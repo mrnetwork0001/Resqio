@@ -3,12 +3,26 @@
 In-memory with JSON snapshot persistence so the daemon survives restarts and
 the AgentCore runtime can rehydrate between invocations. Not a database on
 purpose: a community deployment must run on a laptop in a shelter.
+
+Single-writer by design: exactly ONE process may own a store file (the
+AgentCore runtime, the webhook server with its embedded poll loop, or the
+standalone daemon). The RLock covers threads within that process; it cannot
+arbitrate between processes.
+
+Match lifecycle is a guarded state machine — a captain's stale PASS must
+never reopen a delivery someone already accepted:
+
+    proposed → pending_approval → approved → delivered
+                     ↘ declined / expired (reopens both sides)
 """
 
 from __future__ import annotations
 
 import json
+import logging
+import os
 import threading
+import time
 from pathlib import Path
 
 from .models import (
@@ -18,6 +32,22 @@ from .models import (
     ResourceOffer,
     ResourceRequest,
 )
+
+logger = logging.getLogger("resqio.store")
+
+
+class InvalidTransition(ValueError):
+    """Raised when a match status change is not a legal lifecycle step."""
+
+
+_ALLOWED_TRANSITIONS: dict[MatchStatus, set[MatchStatus]] = {
+    MatchStatus.PROPOSED: {MatchStatus.PENDING_APPROVAL, MatchStatus.DECLINED, MatchStatus.EXPIRED},
+    MatchStatus.PENDING_APPROVAL: {MatchStatus.APPROVED, MatchStatus.DECLINED, MatchStatus.EXPIRED},
+    MatchStatus.APPROVED: {MatchStatus.DELIVERED, MatchStatus.EXPIRED},
+    MatchStatus.DECLINED: set(),
+    MatchStatus.DELIVERED: set(),
+    MatchStatus.EXPIRED: set(),
+}
 
 
 class CommunityStore:
@@ -56,15 +86,25 @@ class CommunityStore:
     # ── Matches ──────────────────────────────────────────────────────
 
     def record_match(self, match: Match) -> Match:
-        """Persist a match and mark both sides as tentatively taken."""
+        """Persist a match and mark both sides as tentatively taken.
+
+        The OPEN re-check happens *inside* the lock: two concurrent cycles
+        that both saw the same open offer must not both book it.
+        """
         with self._lock:
-            if match.offer_id not in self.offers:
+            offer = self.offers.get(match.offer_id)
+            request = self.requests.get(match.request_id)
+            if offer is None:
                 raise KeyError(f"unknown offer id {match.offer_id!r}")
-            if match.request_id not in self.requests:
+            if request is None:
                 raise KeyError(f"unknown request id {match.request_id!r}")
+            if offer.status != EntryStatus.OPEN:
+                raise InvalidTransition(f"offer {offer.id} is no longer open ({offer.status.value})")
+            if request.status != EntryStatus.OPEN:
+                raise InvalidTransition(f"request {request.id} is no longer open ({request.status.value})")
             self.matches[match.id] = match
-            self.offers[match.offer_id].status = EntryStatus.MATCHED
-            self.requests[match.request_id].status = EntryStatus.MATCHED
+            offer.status = EntryStatus.MATCHED
+            request.status = EntryStatus.MATCHED
             self._save()
         return match
 
@@ -76,25 +116,41 @@ class CommunityStore:
         with self._lock:
             return [m for m in self.matches.values() if m.status == MatchStatus.PENDING_APPROVAL]
 
+    def awaiting_action_matches(self) -> list[Match]:
+        """Matches still in a non-terminal, human-actionable state."""
+        with self._lock:
+            return [
+                m for m in self.matches.values()
+                if m.status in (MatchStatus.PROPOSED, MatchStatus.PENDING_APPROVAL)
+            ]
+
     def set_match_status(self, match_id: str, status: MatchStatus) -> Match:
         with self._lock:
             match = self.matches.get(match_id)
             if match is None:
                 raise KeyError(f"unknown match id {match_id!r}")
+            if status not in _ALLOWED_TRANSITIONS[match.status]:
+                raise InvalidTransition(
+                    f"match {match_id} is {match.status.value}; cannot become {status.value}"
+                )
             match.status = status
-            # A declined/expired match frees both sides for re-matching.
+            # A declined/expired match frees both sides for re-matching; a
+            # delivered one closes them. Only touch entries still MATCHED —
+            # entries closed or re-booked by another match are not ours.
             if status in (MatchStatus.DECLINED, MatchStatus.EXPIRED):
-                if match.offer_id in self.offers:
-                    self.offers[match.offer_id].status = EntryStatus.OPEN
-                if match.request_id in self.requests:
-                    self.requests[match.request_id].status = EntryStatus.OPEN
+                self._release_entries(match, EntryStatus.OPEN)
             elif status == MatchStatus.DELIVERED:
-                if match.offer_id in self.offers:
-                    self.offers[match.offer_id].status = EntryStatus.CLOSED
-                if match.request_id in self.requests:
-                    self.requests[match.request_id].status = EntryStatus.CLOSED
+                self._release_entries(match, EntryStatus.CLOSED)
             self._save()
             return match
+
+    def _release_entries(self, match: Match, new_status: EntryStatus) -> None:
+        offer = self.offers.get(match.offer_id)
+        if offer is not None and offer.status == EntryStatus.MATCHED:
+            offer.status = new_status
+        request = self.requests.get(match.request_id)
+        if request is not None and request.status == EntryStatus.MATCHED:
+            request.status = new_status
 
     # ── Persistence ──────────────────────────────────────────────────
 
@@ -108,11 +164,34 @@ class CommunityStore:
         }
         self._path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self._path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(payload, indent=2))
+        with open(tmp, "w") as fh:
+            fh.write(json.dumps(payload, indent=2))
+            fh.flush()
+            os.fsync(fh.fileno())  # a crash mid-crisis must not lose the board
         tmp.replace(self._path)
 
     def _load(self) -> None:
-        raw = json.loads(self._path.read_text())
-        self.offers = {d["id"]: ResourceOffer.model_validate(d) for d in raw.get("offers", [])}
-        self.requests = {d["id"]: ResourceRequest.model_validate(d) for d in raw.get("requests", [])}
-        self.matches = {d["id"]: Match.model_validate(d) for d in raw.get("matches", [])}
+        try:
+            raw = json.loads(self._path.read_text())
+        except Exception as exc:  # noqa: BLE001 — a corrupt file must not brick startup
+            quarantine = self._path.with_name(f"{self._path.name}.corrupt-{int(time.time())}")
+            self._path.replace(quarantine)
+            logger.error(
+                "store file %s is corrupt (%s); quarantined to %s and starting empty",
+                self._path, exc, quarantine,
+            )
+            return
+        self.offers = self._validate_records(raw.get("offers", []), ResourceOffer)
+        self.requests = self._validate_records(raw.get("requests", []), ResourceRequest)
+        self.matches = self._validate_records(raw.get("matches", []), Match)
+
+    @staticmethod
+    def _validate_records(records: list[dict], model) -> dict:
+        loaded = {}
+        for record in records:
+            try:
+                item = model.model_validate(record)
+                loaded[item.id] = item
+            except Exception as exc:  # noqa: BLE001 — one bad record must not discard the rest
+                logger.error("skipping invalid %s record %s (%s)", model.__name__, record.get("id"), exc)
+        return loaded

@@ -10,8 +10,9 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 def _new_id(prefix: str) -> str:
@@ -205,16 +206,34 @@ class MatchProposal(BaseModel):
     unmet_request_ids: list[str] = Field(default_factory=list, description="Open requests no offer could serve")
 
 
+MessageKind = Literal["offer", "request", "accept", "pass", "delivered", "unknown"]
+_MESSAGE_KINDS = {"offer", "request", "accept", "pass", "delivered", "unknown"}
+
+
 class ParsedInboundMessage(BaseModel):
     """StrandsResourceMatcher's reading of a raw community SMS."""
 
-    kind: str = Field(description="'offer' | 'request' | 'accept' | 'pass' | 'delivered' | 'unknown'")
+    kind: MessageKind = Field(description="'offer' | 'request' | 'accept' | 'pass' | 'delivered' | 'unknown'")
     resource_type: ResourceType = ResourceType.OTHER
     description: str = ""
     urgency: int = Field(default=3, ge=1, le=5)
     vulnerability: Vulnerability = Vulnerability.NONE
     address: str = ""
     match_id: str = Field(default="", description="For accept/pass/delivered replies: the match id referenced")
+
+    @field_validator("kind", mode="before")
+    @classmethod
+    def _normalize_kind(cls, value: object) -> str:
+        # LLM output like "Offer" or "REPLY" must fail into the safe branch,
+        # never drop a community message on a capitalization mismatch.
+        if isinstance(value, str) and value.strip().lower() in _MESSAGE_KINDS:
+            return value.strip().lower()
+        return "unknown"
+
+    @field_validator("match_id", mode="before")
+    @classmethod
+    def _normalize_match_id(cls, value: object) -> str:
+        return value.strip().lower() if isinstance(value, str) else ""
 
 
 class RoutePlan(BaseModel):

@@ -51,13 +51,13 @@ Copy `.env.example` → `.env`:
 - **Grid data**: there is **no free real-time outage feed** (EAGLE-I is restricted to government/utility accounts; poweroutage.us is a paid enterprise API), so the grid source is pluggable: `SimulatedGridFeed` ships EAGLE-I-schema county records, and any real utility API can implement the same two-method `GridFeed` protocol.
 - **Twilio**: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `RESQIO_CAPTAIN_NUMBERS`. For dev, captains join the WhatsApp Sandbox (`join <code>` to +1 415 523 8886), which opens the 24-h session window for free-form pings; for production business-initiated pings, set `TWILIO_CONTENT_SID` to an approved `twilio/quick-reply` template and captains get real **[Accept] [Pass]** buttons.
 
-Inbound SMS/WhatsApp webhook (replies + new offers/requests):
+The live local runtime is a **single process** — the webhook server ingests inbound SMS/WhatsApp *and* runs the polling loop on an embedded thread (the JSON store is single-writer by design; don't run `src.daemon` against the same store file simultaneously):
 
 ```bash
-python -m src.integrations.webhook_server   # POST /sms on :5001 — expose with `ngrok http 5001`
+python -m src.integrations.webhook_server   # POST /sms on :5001 + poll loop — expose with `ngrok http 5001`
 ```
 
-X-Twilio-Signature is validated on every inbound POST, so a random request can't inject offers or approve matches.
+X-Twilio-Signature is validated on every inbound POST, so a random request can't inject offers or approve matches (behind a proxy, set `RESQIO_WEBHOOK_URL` to the exact public URL Twilio calls). Approval pings that nobody answers expire after `RESQIO_MATCH_TTL_MINUTES` (default 45) and both sides go back on the board; match lifecycle is a guarded state machine, so a second captain's stale `PASS` can never reopen a delivery someone already accepted.
 
 ## Amazon Bedrock AgentCore deployment
 
@@ -71,9 +71,14 @@ curl -X POST localhost:8080/invocations -d '{"action": "cycle"}'
 # Deploy with the AgentCore CLI (npm; the pip starter-toolkit CLI is deprecated)
 npm install -g @aws/agentcore
 agentcore create --name Resqio --framework Strands --protocol HTTP --model-provider Bedrock
+# `create` scaffolds a wrapper project — point its runtime entrypoint at
+# src/aws/bedrock_agentcore_handler.py (copy src/ + requirements.txt into the
+# generated app dir), then:
 agentcore deploy
 agentcore invoke --runtime Resqio '{"action": "daemon", "cycles": 12}'
 ```
+
+(Alternative: build a `linux/arm64` image serving this app on `:8080`, push to ECR, and register it via boto3 `bedrock-agentcore-control.create_agent_runtime`.)
 
 Payload actions: `cycle` (one pass), `daemon` (background polling), `inbound_sms`, `status`.
 
