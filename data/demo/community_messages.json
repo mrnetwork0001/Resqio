@@ -1,0 +1,33 @@
+{
+  "note": "Simulated inbound SMS messages from community members during the demo scenario.",
+  "messages": [
+    {
+      "from": "+15125550101",
+      "name": "Marcus D.",
+      "body": "OFFER: Generator available in Sector 4, 7500W dual fuel, can run a fridge and AC unit. I'm near Springdale Rd.",
+      "lat": 30.2795,
+      "lon": -97.6923
+    },
+    {
+      "from": "+15125550102",
+      "name": "Rosa H.",
+      "body": "OFFER: I have 6 bags of ice and cooler space, east side near MLK & Chestnut.",
+      "lat": 30.2801,
+      "lon": -97.7137
+    },
+    {
+      "from": "+15125550103",
+      "name": "Amara O.",
+      "body": "HELP: My father is 82, insulin needs refrigeration and our power is out at 42 Maple St, Sector 4. Urgent.",
+      "lat": 30.2764,
+      "lon": -97.7041
+    },
+    {
+      "from": "+15125550104",
+      "name": "Dan K.",
+      "body": "HELP: Family with a 3-month-old, no power, need somewhere cool or a fan/generator. Govalle area.",
+      "lat": 30.2618,
+      "lon": -97.6889
+    }
+  ]
+}

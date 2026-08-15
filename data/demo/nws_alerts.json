@@ -1,0 +1,47 @@
+{
+  "type": "FeatureCollection",
+  "demo_retimestamp": true,
+  "title": "Current watches, warnings, and advisories for Texas",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "urn:oid:2.49.0.1.840.0.demo-heat-travis",
+      "properties": {
+        "id": "urn:oid:2.49.0.1.840.0.demo-heat-travis",
+        "event": "Excessive Heat Warning",
+        "severity": "Extreme",
+        "urgency": "Immediate",
+        "certainty": "Observed",
+        "messageType": "Alert",
+        "status": "Actual",
+        "headline": "Excessive Heat Warning issued for Travis County until 9 PM CDT",
+        "description": "Dangerously hot conditions with heat index values up to 112 expected. Extreme heat and humidity will significantly increase the potential for heat-related illnesses, particularly for those working or participating in outdoor activities and those without effective cooling or adequate hydration.",
+        "areaDesc": "Travis County, TX",
+        "geocode": { "SAME": ["048453"], "UGC": ["TXZ192"] },
+        "effective": "2026-08-15T10:00:00-05:00",
+        "ends": "2026-08-15T21:00:00-05:00",
+        "expires": "2026-08-15T21:00:00-05:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "urn:oid:2.49.0.1.840.0.demo-heat-williamson",
+      "properties": {
+        "id": "urn:oid:2.49.0.1.840.0.demo-heat-williamson",
+        "event": "Heat Advisory",
+        "severity": "Moderate",
+        "urgency": "Expected",
+        "certainty": "Likely",
+        "messageType": "Alert",
+        "status": "Actual",
+        "headline": "Heat Advisory issued for Williamson County until 8 PM CDT",
+        "description": "Heat index values up to 105 expected. Drink plenty of fluids, stay in an air-conditioned room, stay out of the sun.",
+        "areaDesc": "Williamson County, TX",
+        "geocode": { "SAME": ["048491"], "UGC": ["TXZ174"] },
+        "effective": "2026-08-15T11:00:00-05:00",
+        "ends": "2026-08-15T20:00:00-05:00",
+        "expires": "2026-08-15T20:00:00-05:00"
+      }
+    }
+  ]
+}

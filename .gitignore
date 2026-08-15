@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets & local state
+.env
+data/store.json
+data/*.log
+
+# Node / Next.js (client/)
+node_modules/
+.next/
+out/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# AgentCore build artifacts
+.bedrock_agentcore.yaml
+.bedrock_agentcore/

@@ -1,0 +1,26 @@
+{
+  "as_of": "2026-08-15T14:30:00-05:00",
+  "provider": "simulated — records use the EAGLE-I county outage schema (fips_code, county, state, customers_out, run_start_time)",
+  "outages": [
+    {
+      "fips_code": "48453",
+      "county": "Travis",
+      "state": "TX",
+      "customers_out": 12400,
+      "run_start_time": "2026-08-15T13:15:00-05:00",
+      "event": "Feeder Outage",
+      "area_detail": "East Austin — Sector 4 (Travis County, TX)",
+      "cause": "Transformer failure under extreme heat load; estimated restoration 11:00 PM CDT."
+    },
+    {
+      "fips_code": "48453",
+      "county": "Travis",
+      "state": "TX",
+      "customers_out": 3100,
+      "run_start_time": "2026-08-15T14:00:00-05:00",
+      "event": "Rolling Blackout",
+      "area_detail": "Pflugerville North (Travis County, TX)",
+      "cause": "Grid operator load shed, 45-minute rotating blocks."
+    }
+  ]
+}

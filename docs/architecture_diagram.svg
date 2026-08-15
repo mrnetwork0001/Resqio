@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b45309"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d"/>
+    </marker>
+  </defs>
+
+  <rect width="1440" height="960" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <text x="720" y="46" text-anchor="middle" font-size="28" font-weight="700" fill="#0f172a">RESQIO — Autonomous Community Disaster &amp; Crisis Logistics Agent</text>
+  <text x="720" y="74" text-anchor="middle" font-size="15" fill="#475569">Strands Agents SDK · Amazon Bedrock AgentCore · Twilio WhatsApp/SMS — silent background operation, humans pinged only for approval</text>
+
+  <!-- ── Data sources row ── -->
+  <g>
+    <rect x="330" y="105" width="360" height="96" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5"/>
+    <text x="510" y="133" text-anchor="middle" font-size="16" font-weight="700" fill="#0c4a6e">NOAA / NWS Weather Alerts</text>
+    <text x="510" y="156" text-anchor="middle" font-size="13" fill="#0c4a6e">api.weather.gov /alerts/active — live GeoJSON</text>
+    <text x="510" y="176" text-anchor="middle" font-size="13" fill="#0c4a6e">severity · urgency · county FIPS (SAME) codes</text>
+
+    <rect x="750" y="105" width="360" height="96" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5"/>
+    <text x="930" y="133" text-anchor="middle" font-size="16" font-weight="700" fill="#0c4a6e">Power Grid Outage Feed</text>
+    <text x="930" y="156" text-anchor="middle" font-size="13" fill="#0c4a6e">EAGLE-I county schema (pluggable source)</text>
+    <text x="930" y="176" text-anchor="middle" font-size="13" fill="#0c4a6e">fips_code · customers_out · run_start_time</text>
+  </g>
+
+  <!-- Community SMS inbound (left column) -->
+  <rect x="40" y="330" width="230" height="150" rx="10" fill="#fef9c3" stroke="#a16207" stroke-width="1.5"/>
+  <text x="155" y="360" text-anchor="middle" font-size="16" font-weight="700" fill="#713f12">Community SMS</text>
+  <text x="155" y="386" text-anchor="middle" font-size="12.5" fill="#713f12">“OFFER: generator in Sector 4”</text>
+  <text x="155" y="406" text-anchor="middle" font-size="12.5" fill="#713f12">“HELP: insulin ice needed</text>
+  <text x="155" y="424" text-anchor="middle" font-size="12.5" fill="#713f12">at 42 Maple St”</text>
+  <text x="155" y="452" text-anchor="middle" font-size="12" fill="#a16207">Twilio webhook → pipeline</text>
+
+  <!-- ── AgentCore container ── -->
+  <rect x="330" y="250" width="1060" height="450" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+  <text x="360" y="284" font-size="17" font-weight="700" fill="#9a3412">Amazon Bedrock AgentCore Runtime</text>
+  <text x="360" y="306" font-size="13" fill="#9a3412">POST /invocations · GET /ping · background daemon via add_async_task (HealthyBusy) — identical local fallback: python -m src.daemon</text>
+
+  <!-- Agent 1 -->
+  <rect x="360" y="330" width="310" height="180" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="515" y="358" text-anchor="middle" font-size="16" font-weight="700" fill="#5b21b6">① StrandsGridMonitor</text>
+  <text x="515" y="382" text-anchor="middle" font-size="13" fill="#334155">polls feeds 24/7 · correlates weather ×</text>
+  <text x="515" y="400" text-anchor="middle" font-size="13" fill="#334155">outages on county FIPS overlap</text>
+  <text x="515" y="424" text-anchor="middle" font-size="13" fill="#334155">→ CrisisAssessment (level 0–5)</text>
+  <rect x="385" y="444" width="260" height="46" rx="6" fill="#f5f3ff" stroke="#a78bfa" stroke-width="1"/>
+  <text x="515" y="463" text-anchor="middle" font-size="12" fill="#5b21b6">Strands Agent · Claude on Bedrock</text>
+  <text x="515" y="481" text-anchor="middle" font-size="12" fill="#5b21b6">degraded mode: severity heuristics</text>
+
+  <!-- Agent 2 -->
+  <rect x="705" y="330" width="310" height="180" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="860" y="358" text-anchor="middle" font-size="16" font-weight="700" fill="#5b21b6">② StrandsResourceMatcher</text>
+  <text x="860" y="382" text-anchor="middle" font-size="13" fill="#334155">parses neighbor SMS → offers/requests ·</text>
+  <text x="860" y="400" text-anchor="middle" font-size="13" fill="#334155">matches supply ↔ need (urgency,</text>
+  <text x="860" y="418" text-anchor="middle" font-size="13" fill="#334155">vulnerability, haversine distance tools)</text>
+  <rect x="730" y="444" width="260" height="46" rx="6" fill="#f5f3ff" stroke="#a78bfa" stroke-width="1"/>
+  <text x="860" y="463" text-anchor="middle" font-size="12" fill="#5b21b6">Strands Agent · validated structured output</text>
+  <text x="860" y="481" text-anchor="middle" font-size="12" fill="#5b21b6">degraded mode: compatibility matrix</text>
+
+  <!-- Agent 3 -->
+  <rect x="1050" y="330" width="310" height="180" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="1205" y="358" text-anchor="middle" font-size="16" font-weight="700" fill="#5b21b6">③ StrandsVolunteerRouter</text>
+  <text x="1205" y="382" text-anchor="middle" font-size="13" fill="#334155">plans safe crisis-condition transit ·</text>
+  <text x="1205" y="400" text-anchor="middle" font-size="13" fill="#334155">hazard guidance per active event ·</text>
+  <text x="1205" y="418" text-anchor="middle" font-size="13" fill="#334155">writes the captain approval ping</text>
+  <rect x="1075" y="444" width="260" height="46" rx="6" fill="#f5f3ff" stroke="#a78bfa" stroke-width="1"/>
+  <text x="1205" y="463" text-anchor="middle" font-size="12" fill="#5b21b6">Strands Agent · enforced reply protocol</text>
+  <text x="1205" y="481" text-anchor="middle" font-size="12" fill="#5b21b6">degraded mode: haversine planner</text>
+
+  <!-- Community store -->
+  <rect x="580" y="560" width="560" height="110" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+  <text x="860" y="590" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">CommunityStore — offers · requests · matches</text>
+  <text x="860" y="614" text-anchor="middle" font-size="13" fill="#334155">JSON-snapshot persistence (runs on a shelter laptop) · match lifecycle:</text>
+  <text x="860" y="636" text-anchor="middle" font-size="13" fill="#334155">proposed → pending_approval → approved / declined (re-opens both sides) → delivered</text>
+
+  <!-- Dispatcher -->
+  <rect x="500" y="740" width="420" height="100" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="710" y="770" text-anchor="middle" font-size="16" font-weight="700" fill="#14532d">Twilio WhatsApp / SMS Dispatcher</text>
+  <text x="710" y="794" text-anchor="middle" font-size="13" fill="#14532d">the ONLY outward surface — fires solely when a match</text>
+  <text x="710" y="813" text-anchor="middle" font-size="13" fill="#14532d">needs a human yes/no (quick-reply content template)</text>
+
+  <!-- Captain phone -->
+  <rect x="1020" y="722" width="330" height="150" rx="14" fill="#0f172a"/>
+  <rect x="1032" y="734" width="306" height="126" rx="8" fill="#f8fafc"/>
+  <text x="1185" y="756" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Volunteer Captain — WhatsApp</text>
+  <text x="1046" y="778" font-size="12" fill="#334155">🚨 Generator needed for insulin refrigeration</text>
+  <text x="1046" y="796" font-size="12" fill="#334155">(urgency 5/5) — Springdale Rd → 42 Maple St,</text>
+  <text x="1046" y="814" font-size="12" fill="#334155">1.2 km, ~7 min. Heat warning: travel with AC.</text>
+  <rect x="1060" y="826" width="115" height="24" rx="12" fill="#dcfce7" stroke="#15803d"/>
+  <text x="1117" y="843" text-anchor="middle" font-size="12.5" font-weight="700" fill="#14532d">ACCEPT</text>
+  <rect x="1195" y="826" width="115" height="24" rx="12" fill="#fee2e2" stroke="#b91c1c"/>
+  <text x="1252" y="843" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7f1d1d">PASS</text>
+
+  <!-- Silent badge -->
+  <rect x="40" y="740" width="380" height="100" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="230" y="772" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">Background-autonomy rule</text>
+  <text x="230" y="796" text-anchor="middle" font-size="12.5" fill="#475569">no crisis → zero messages, zero noise</text>
+  <text x="230" y="816" text-anchor="middle" font-size="12.5" fill="#475569">crisis + match → exactly one approval ping</text>
+
+  <!-- ── Arrows ── -->
+  <!-- feeds -> monitor -->
+  <path d="M 510 201 L 512 330" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 930 201 L 930 240 L 560 240 L 545 330" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- SMS -> matcher (routed under the agent row) -->
+  <path d="M 155 480 L 155 535 L 745 535 L 745 510" fill="none" stroke="#b45309" stroke-width="2" marker-end="url(#arrowAmber)"/>
+  <text x="420" y="528" font-size="12.5" fill="#b45309">inbound offers &amp; requests</text>
+  <!-- monitor -> matcher -->
+  <path d="M 670 420 L 705 420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- matcher -> router -->
+  <path d="M 1015 420 L 1050 420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- matcher <-> store -->
+  <path d="M 860 510 L 860 560" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- router -> dispatcher -->
+  <path d="M 1205 510 L 1205 700 L 830 700 L 800 740" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1218" y="640" font-size="12.5" fill="#475569">RoutePlan + ping text</text>
+  <!-- dispatcher -> phone -->
+  <path d="M 920 790 L 1020 790" fill="none" stroke="#15803d" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <text x="936" y="780" font-size="12" fill="#15803d">1 ping</text>
+  <!-- phone reply -> store (approval) -->
+  <path d="M 1185 872 L 1185 916 L 460 916 L 460 640 L 580 632" fill="none" stroke="#15803d" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#arrowGreen)"/>
+  <text x="700" y="908" font-size="12.5" fill="#15803d">reply ACCEPT / PASS / DELIVERED → match lifecycle update (webhook)</text>
+</svg>
