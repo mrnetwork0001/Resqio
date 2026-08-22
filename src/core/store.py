@@ -152,6 +152,14 @@ class CommunityStore:
         if request is not None and request.status == EntryStatus.MATCHED:
             request.status = new_status
 
+    def clear(self) -> None:
+        """Wipe the board (demo resets only)."""
+        with self._lock:
+            self.offers.clear()
+            self.requests.clear()
+            self.matches.clear()
+            self._save()
+
     # ── Persistence ──────────────────────────────────────────────────
 
     def _save(self) -> None:

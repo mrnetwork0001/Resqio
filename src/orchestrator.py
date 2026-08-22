@@ -65,6 +65,8 @@ class ResqioPipeline:
         self.matcher = StrandsResourceMatcher(self.settings, self.store)
         self.router = StrandsVolunteerRouter(self.settings)
         self.dispatcher = TwilioWhatsAppDispatcher(self.settings)
+        self.last_report: CycleReport | None = None
+        self.last_cycle_at = None
 
     # ── The background cycle ─────────────────────────────────────────
 
@@ -74,6 +76,8 @@ class ResqioPipeline:
         events = self.monitor.poll()
         assessment = self.monitor.assess(events)
         report = CycleReport(assessment=assessment)
+        self.last_report = report  # same object; later ping appends show through
+        self.last_cycle_at = utcnow()
 
         if not assessment.is_crisis:
             logger.info("cycle: calm (level %s) — staying silent", assessment.crisis_level)
@@ -175,4 +179,11 @@ class ResqioPipeline:
             "pending_matches": [m.model_dump(mode="json") for m in self.store.pending_matches()],
             "total_matches": len(self.store.matches),
             "last_events": [e.model_dump(mode="json") for e in self.monitor.last_events],
+            # Full board + latest cycle, for the dashboard.
+            "assessment": self.last_report.assessment.model_dump() if self.last_report else None,
+            "last_cycle_at": self.last_cycle_at.isoformat() if self.last_cycle_at else None,
+            "offers": [o.model_dump(mode="json") for o in self.store.offers.values()],
+            "requests": [r.model_dump(mode="json") for r in self.store.requests.values()],
+            "matches": [m.model_dump(mode="json") for m in self.store.matches.values()],
+            "pings": [p.model_dump(mode="json") for p in self.dispatcher.sent],
         }
