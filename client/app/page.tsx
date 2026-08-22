@@ -1,5 +1,6 @@
 import Link from "next/link";
 import HeroAnimation from "@/components/HeroAnimation";
+import SiteFooter from "@/components/SiteFooter";
 
 const GITHUB = "https://github.com/mrnetwork0001/Resqio";
 
@@ -184,7 +185,7 @@ export default function Landing() {
       </section>
 
       {/* ── How it works ── */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section id="how-it-works" className="mx-auto max-w-6xl scroll-mt-8 px-6 py-20">
         <Eyebrow>How it works</Eyebrow>
         <SectionTitle>From weather feed to doorstep, autonomously</SectionTitle>
         <div className="mt-12 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
@@ -199,7 +200,7 @@ export default function Landing() {
       </section>
 
       {/* ── Agents ── */}
-      <section className="border-y border-line bg-panel/60">
+      <section id="agents" className="scroll-mt-8 border-y border-line bg-panel/60">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <Eyebrow>Under the hood</Eyebrow>
           <SectionTitle>Three specialized agents, one silent pipeline</SectionTitle>
@@ -223,7 +224,7 @@ export default function Landing() {
       </section>
 
       {/* ── Principles ── */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section id="principles" className="mx-auto max-w-6xl scroll-mt-8 px-6 py-20">
         <Eyebrow>Design principles</Eyebrow>
         <SectionTitle>Built for the worst day, not the demo day</SectionTitle>
         <div className="mt-12 grid gap-x-12 gap-y-10 sm:grid-cols-2">
@@ -257,12 +258,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap gap-x-8 gap-y-2 px-6 py-8 font-mono text-[11px] uppercase tracking-wider text-muted">
-        <span>Resqio · Apache 2.0</span>
-        <a href={GITHUB} className="transition-colors hover:text-ink">github.com/mrnetwork0001/Resqio</a>
-        <span>Strands Agents SDK · Amazon Bedrock AgentCore · Twilio · NOAA</span>
-        <span className="sm:ml-auto">Built for the AWS Agents for Humans Hackathon</span>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
