@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Assessment,
@@ -141,7 +142,13 @@ export default function Board() {
     <div className="mx-auto flex min-h-screen max-w-[1400px] flex-col gap-4 p-4 lg:p-6">
       <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border border-line bg-panel px-5 py-4">
         <h1 className="font-display text-3xl leading-none tracking-tight">
-          RESQIO<span className="text-accent">.</span>
+          <Link
+            href="/"
+            aria-label="Back to the Resqio landing page"
+            className="transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            RESQIO<span className="text-accent">.</span>
+          </Link>
         </h1>
         <span className="hidden font-mono text-[11px] uppercase tracking-[0.14em] text-muted sm:block">
           Community situation board
