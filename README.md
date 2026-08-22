@@ -40,6 +40,18 @@ python -m src.daemon --cycles 3 --interval 10
 
 The demo plays the **Austin heatwave scenario**: an Excessive Heat Warning collides with a 12,400-customer feeder outage (overlapping FIPS ⇒ crisis level 5), four neighbors text in, the generator is matched to the insulin request 1.2 km away, and a captain approves the delivery over (console-rendered) WhatsApp.
 
+## Situation board (Next.js 14 dashboard)
+
+```bash
+# Terminal 1 — the Resqio runtime (webhook + dashboard API + poll loop)
+python -m src.integrations.webhook_server            # :5001
+
+# Terminal 2 — the dashboard
+cd client && npm install && npm run dev              # :3000
+```
+
+Open http://localhost:3000: live crisis gauge and SITREP, active NWS/grid events with severity, the community offer/request board with urgency and vulnerability tags, match dispatch with route estimates, the ping log, and a captain console for replying `ACCEPT/PASS/DELIVERED` in demo mode. **Seed texts** / **Run cycle** / **Reset** buttons drive the whole scenario from the browser. The board is read-only observability — the agent itself stays a silent background process, exactly as the track brief asks.
+
 With AWS credentials + Bedrock model access configured (`.env` from `.env.example`), the same commands use live Claude reasoning for assessment, SMS parsing, matching, and routing.
 
 ## Live mode configuration

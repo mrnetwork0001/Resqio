@@ -38,5 +38,14 @@ Use this skill whenever working on, reviewing, or developing **Resqio** — the 
 ## 🚨 Submission Checklist
 - Public GitHub repo with Apache 2.0 or MIT License. ✅ github.com/mrnetwork0001/Resqio
 - Architecture Diagram + `README.md`. ✅
+- Secrets scan of repo + git history (no keys committed; `.env` gitignored). ✅ re-run before final submit
 - Max 5-minute video demo (human voiceover, no AI voice). ⬜ (Week 4)
 - AWS Builder ID + optional builder.aws.com journey post. ⬜ (Week 4)
+
+## 🦈 Judging pointers (from the Devpost organizers' email, Aug 2026)
+- Lead the pitch with ONE concrete pain: Amara's 82-year-old father, insulin needing refrigeration, power out — not the architecture.
+- Background autonomy is the winning shape: "runs in the background and only surfaces when a human actually needs to decide" — say this in the video in exactly those terms.
+- Make Strands Agents impossible to miss: name it in the Devpost description, list it in "Built With", and show the agent code/logs on screen in the video (run live Bedrock mode for the video, not degraded mode).
+- Video = pitch, not tutorial: problem → who it's for → why it matters → working demo. Screen recording + voiceover is fine; no need to appear on camera.
+- Bonus post on builder.aws.com MUST have "Agents for Humans" in the title, published before the deadline.
+- Scan the repo for exposed API keys before submitting.
