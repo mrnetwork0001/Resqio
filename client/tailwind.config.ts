@@ -1,18 +1,21 @@
 import type { Config } from "tailwindcss";
 
-// Resqio ops-board palette — dark ops-room screen, hazard-orange accent.
+// Resqio brand — brutalist emergency-ops: near-black ground, hi-vis safety
+// yellow accent (hazard tape, emergency vests), paper cards, warm greys.
+// ok/warn/danger/info stay semantic for the situation board.
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ground: "#10151c",
-        panel: "#1a212b",
-        raised: "#222b37",
-        line: "#2b3440",
-        ink: "#e8e9e4",
-        muted: "#8fa0ad",
-        accent: "#f0713a",
+        ground: "#0a0a0a",
+        panel: "#121211",
+        raised: "#1a1a18",
+        line: "#272723",
+        ink: "#f1f1ec",
+        muted: "#8b8b84",
+        accent: "#d7ff00",
+        paper: "#f4f4ee",
         ok: "#52c776",
         warn: "#dcae3c",
         danger: "#e5484d",

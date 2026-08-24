@@ -12,17 +12,17 @@ const H = 470;
 const LOOP = 14; // seconds
 
 const C = {
-  ground: "#10151c",
-  street: "#1d2631",
-  block: "#161d27",
-  blockLit: "#1b2431",
-  ink: "#e8e9e4",
-  muted: "#8fa0ad",
-  accent: "#f0713a",
+  ground: "#0a0a0a",
+  street: "#1d1d19",
+  block: "#131311",
+  blockLit: "#1a1a16",
+  ink: "#f1f1ec",
+  muted: "#8b8b84",
+  accent: "#d7ff00",
   ok: "#52c776",
   warn: "#dcae3c",
   danger: "#e5484d",
-  card: "#202a36",
+  card: "#181815",
 };
 
 const OFFER = { x: 430, y: 132 };
@@ -35,7 +35,7 @@ const at = (t: number, start: number, dur: number) =>
   Math.min(1, Math.max(0, (t - start) / dur));
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3);
 
-export default function HeroAnimation() {
+export default function HeroAnimation({ frozenAt }: { frozenAt?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -53,10 +53,15 @@ export default function HeroAnimation() {
     const monoVar = styles.getPropertyValue("--font-mono").trim() || "monospace";
     const mono = (size: number, weight = 600) => `${weight} ${size}px ${monoVar}, monospace`;
 
-    // ?t=<seconds> freezes the loop at that moment (screenshots, debugging);
-    // reduced motion pins a representative mid-loop frame.
+    // frozenAt prop (still-frame cards) or ?t=<seconds> (screenshots) freezes
+    // the loop; reduced motion pins a representative mid-loop frame.
     const frozenParam = new URLSearchParams(window.location.search).get("t");
-    const frozen = frozenParam !== null ? Number(frozenParam) % LOOP : null;
+    const frozen =
+      frozenAt !== undefined
+        ? frozenAt % LOOP
+        : frozenParam !== null
+          ? Number(frozenParam) % LOOP
+          : null;
     const reduced =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches || frozen !== null;
     let raf = 0;
@@ -212,7 +217,7 @@ export default function HeroAnimation() {
       }
       if (at(t, 6.1, 0.4) > 0 && fade > 0) {
         ctx.globalAlpha = at(t, 6.1, 0.4) * fade;
-        chip((OFFER.x + REQ1.x) / 2 - 52, (OFFER.y + REQ1.y) / 2 - 30, "MATCH 0.9 · 1.2 KM", "#ffd9c4", "rgba(240,113,58,0.2)");
+        chip((OFFER.x + REQ1.x) / 2 - 52, (OFFER.y + REQ1.y) / 2 - 30, "MATCH 0.9 · 1.2 KM", "#0a0a0a", "rgba(215,255,0,0.92)");
         ctx.globalAlpha = 1;
       }
 
@@ -294,7 +299,7 @@ export default function HeroAnimation() {
 
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [frozenAt]);
 
   return (
     <canvas
