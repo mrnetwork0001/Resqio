@@ -7,9 +7,9 @@ const COLUMNS: { title: string; links: { label: string; href: string; external?:
     title: "Product",
     links: [
       { label: "Situation Board", href: "/board" },
-      { label: "How It Works", href: "/#how-it-works" },
-      { label: "The Agents", href: "/#agents" },
-      { label: "Design Principles", href: "/#principles" },
+      { label: "The System", href: "/#system" },
+      { label: "The Scenario", href: "/#scenario" },
+      { label: "FAQ", href: "/#faq" },
     ],
   },
   {
@@ -43,10 +43,10 @@ function GitHubIcon() {
 export default function SiteFooter() {
   return (
     <footer
-      className="border-t border-line bg-[#0b0f14]"
+      className="border-t border-line bg-ground"
       style={{
         backgroundImage:
-          "linear-gradient(rgba(232,233,228,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(232,233,228,0.028) 1px, transparent 1px)",
+          "linear-gradient(rgba(241,241,236,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(241,241,236,0.025) 1px, transparent 1px)",
         backgroundSize: "68px 68px",
       }}
     >
@@ -56,15 +56,15 @@ export default function SiteFooter() {
           <div className="flex items-center gap-4">
             <span
               aria-hidden="true"
-              className="relative flex h-12 w-12 items-center justify-center rounded-full border border-muted/40 font-display text-xl"
+              className="relative flex h-12 w-12 items-center justify-center rounded-full border border-muted/40 font-display text-xl uppercase"
             >
               R
               <span className="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-accent" />
             </span>
             <span className="h-10 w-px bg-line" aria-hidden="true" />
             <span>
-              <span className="block font-display text-lg leading-tight tracking-[0.08em]">
-                RESQIO
+              <span className="block font-display text-lg uppercase leading-tight tracking-[0.08em]">
+                Resqio
               </span>
               <span className="block font-mono text-[9px] uppercase tracking-[0.32em] text-muted">
                 Crisis Logistics
@@ -124,6 +124,13 @@ export default function SiteFooter() {
         <div className="mx-auto flex max-w-6xl flex-wrap gap-x-8 gap-y-2 px-6 py-5 font-mono text-[11px] uppercase tracking-wider text-muted">
           <span>© 2026 Resqio · Apache 2.0</span>
           <span className="sm:ml-auto">Built for the AWS Agents for Humans Hackathon</span>
+        </div>
+      </div>
+
+      {/* ── Giant wordmark ── */}
+      <div aria-hidden="true" className="select-none overflow-hidden pb-2">
+        <div className="text-outline-faint whitespace-nowrap text-center font-display text-[22vw] uppercase leading-[0.78]">
+          Resqio
         </div>
       </div>
     </footer>
