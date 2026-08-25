@@ -135,6 +135,8 @@ Inbound SMS/WhatsApp flows in at any time through a **signature-validated webhoo
 
 Around the agents: a single **orchestrator** ([`src/orchestrator.py`](src/orchestrator.py)) runs the monitor → match → route → ping cycle; the **CommunityStore** ([`src/core/store.py`](src/core/store.py)) is a JSON-snapshot board that runs on a shelter laptop — fsync'd writes, corrupt-file quarantine, no database cluster required; the **Twilio dispatcher** ([`src/integrations/twilio_whatsapp_dispatcher.py`](src/integrations/twilio_whatsapp_dispatcher.py)) is the pipeline's only outward surface.
 
+**Multi-county zones** ([`src/core/zones.py`](src/core/zones.py)): a deployment can define service zones — each with its own NOAA area, county FIPS codes, centroid + radius, and **volunteer captain roster** ([`data/zones.json`](data/zones.json)). Inbound offers and requests are assigned to a zone by location, matching stays within a zone (volunteers serve their own neighborhood), and approval pings go to that zone's captains. No zones file → the original single-zone behavior, unchanged.
+
 ## 🧠 Built on Strands Agents SDK
 
 The agents are genuine [Strands](https://strandsagents.com) agents, not decoration:
@@ -229,7 +231,7 @@ cd client && npm install && npm run dev              # :3000
 </div>
 
 - **`/` — landing page**: what Resqio is and why, with an always-on canvas animation of the full loop.
-- **`/board` — situation board**: live crisis gauge + SITREP, active NWS/grid events with severity, the community offer/request board with urgency and vulnerability tags, match dispatch with route estimates, the ping log, and a captain console (`ACCEPT` / `PASS` / `DELIVERED`). **Seed texts → Run cycle → Reset** buttons drive the whole scenario from the browser.
+- **`/board` — situation board**: live crisis gauge + SITREP, an **ops map** (offers, requests, match lines, and zone radii on a dark basemap), active NWS/grid events with severity, the community offer/request board with urgency and vulnerability tags, match dispatch with route estimates, the ping log, and a captain console (`ACCEPT` / `PASS` / `DELIVERED`). **Seed texts → Run cycle → Reset** buttons drive the whole scenario from the browser.
 
 The board is read-only observability plus demo controls — the agent itself stays a silent background process, exactly as the track brief asks.
 
@@ -263,16 +265,16 @@ The live local runtime is a **single process** — the webhook server ingests in
 
 ## 📡 Data sources, honestly
 
-- **Weather**: live from NOAA/NWS `api.weather.gov` — free, no key, correct `User-Agent` required. Alerts are deduplicated by id, `Cancel` messages honored, `ends` preferred over `expires`.
+- **Weather**: live from NOAA/NWS `api.weather.gov` — free, no key, correct `User-Agent` required. Alerts are deduplicated by id, `Cancel` messages honored, `ends` preferred over `expires`. **Validated against production**: the live path parses real multi-county alert sets (including active Extreme Heat Warnings) with FIPS codes and timezone-aware expiries intact, and multi-state queries work as one comma-joined request.
 - **Power outages**: there is **no free real-time national outage feed** — EAGLE-I is restricted to government/utility accounts, and poweroutage.us is a paid enterprise API. So the grid source is a pluggable two-method protocol: `SimulatedGridFeed` ships realistic **EAGLE-I-schema** county records (`fips_code`, `county`, `state`, `customers_out`, `run_start_time`) for the demo, and any utility API can implement the same protocol without touching the agents.
 
 ## ✅ Testing
 
 ```bash
-python -m pytest        # 66 tests, ~2 s, fully offline
+python -m pytest        # 73 tests, ~2 s, fully offline
 ```
 
-The suite covers the NWS alert parser (dedupe, cancels, `ends` fallback), the grid severity ladder, the store's state machine and persistence (including corrupt-file quarantine), heuristic parsing and matching, route planning, match-TTL expiry, stale-reply guards, and the full pipeline cycle — all on the degraded-mode paths, so CI needs no cloud. With AWS credentials configured, the same commands switch to live Claude reasoning on Bedrock (the live validation run is a [roadmap](#-roadmap) item).
+The suite covers the NWS alert parser (dedupe, cancels, `ends` fallback), the grid severity ladder, the store's state machine and persistence (including corrupt-file quarantine), heuristic parsing and matching, route planning, match-TTL expiry, stale-reply guards, zone assignment and zone-scoped matching, and the full pipeline cycle — all on the degraded-mode paths, so CI needs no cloud. With AWS credentials configured, the same commands switch to live Claude reasoning on Bedrock (the live validation run is a [roadmap](#-roadmap) item).
 
 ## 🏆 Hackathon alignment
 
@@ -309,10 +311,11 @@ Resqio/
 ## 🗺 Roadmap
 
 - 5-minute demo video with human voiceover — the link will land right under the badges
-- Live Bedrock + Twilio sandbox validation run (everything above is verified in degraded mode by design)
+- Live Bedrock + Twilio sandbox validation run (agent reasoning is verified in degraded mode by design; the NOAA live path is already validated against production)
 - AgentCore cloud deployment recorded for the demo video
-- Map view of offers/requests on the situation board
-- Multi-county deployments with per-zone captain rosters
+- Public VPS deployment (live board + real Twilio webhook, 24/7 daemon under systemd)
+
+Shipped from this roadmap already: ✅ ops map on the situation board · ✅ multi-county zones with per-zone captain rosters · ✅ live NOAA validation
 
 ## 📄 License
 
