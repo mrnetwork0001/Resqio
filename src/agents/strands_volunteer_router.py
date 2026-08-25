@@ -51,6 +51,14 @@ _HAZARD_GUIDANCE: list[tuple[tuple[str, ...], str]] = [
 ]
 
 
+def _trim_words(text: str, limit: int) -> str:
+    """Truncate at a word boundary — captains read this text mid-crisis."""
+    text = text.strip()
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+
+
 def fallback_route_plan(
     match: Match,
     offer: ResourceOffer,
@@ -70,17 +78,18 @@ def fallback_route_plan(
         if any(any(kw in label.lower() for kw in keywords) for label in active_labels):
             hazard_notes.append(guidance)
 
-    pickup = offer.address or "the offer location"
-    dropoff = request.address or "the request location"
+    pickup = offer.address or "the pickup point"
+    dropoff = request.address or "the drop-off point"
+    item = _trim_words(offer.description, 48) or offer.resource_type.value
+    need = _trim_words(request.description, 80) or request.resource_type.value
     instructions = (
-        f"Pick up {offer.description or offer.resource_type.value} at {pickup}, "
-        f"deliver to {dropoff}. " + " ".join(hazard_notes)
+        f"Pick up {item} at {pickup}, deliver to {dropoff}. " + " ".join(hazard_notes)
     ).strip()
 
     ping = (
-        f"🚨 Resqio: {offer.resource_type.value} needed for {request.description[:80]} "
+        f"🚨 Resqio: {offer.resource_type.value} needed for {need} "
         f"({request.vulnerability.value}, urgency {request.urgency}/5). "
-        f"Bring {offer.description[:60] or offer.resource_type.value} from {pickup} to {dropoff} "
+        f"Bring {item} from {pickup} to {dropoff} "
         f"— {distance_km} km, ~{est_minutes:.0f} min. "
         f"Reply ACCEPT {match.id} or PASS {match.id}"
     )

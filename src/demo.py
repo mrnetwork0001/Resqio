@@ -22,7 +22,10 @@ from .core.models import GeoPoint
 from .core.store import CommunityStore
 from .orchestrator import ResqioPipeline
 
-logging.basicConfig(level=logging.WARNING)  # keep the demo narrative clean
+logging.basicConfig(level=logging.WARNING)
+# Degraded-mode fallbacks are by design, not an error condition — one
+# intentional notice in the banner replaces a wall of per-call warnings.
+logging.getLogger("resqio").setLevel(logging.ERROR)
 
 
 def banner(text: str) -> None:
@@ -39,8 +42,8 @@ def main() -> None:
     print("=" * 70)
     print("  RESQIO — Autonomous Community Disaster & Crisis Logistics Agent")
     print("  Scenario: Austin heatwave + Sector 4 feeder outage")
-    print(f"  Reasoning: {'Bedrock LLM (live)' if not settings.demo_mode else 'demo fixtures'}"
-          f" — agents degrade to deterministic logic if Bedrock is unreachable")
+    print("  ℹ Without AWS credentials the agents run their deterministic")
+    print("    degraded mode — by design; with credentials, live Bedrock reasoning.")
     print("=" * 70)
 
     banner("PHASE 1 — Community members text the Resqio number")

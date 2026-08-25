@@ -89,9 +89,14 @@ def _has_keyword(keyword: str, lower_text: str) -> bool:
     return re.search(rf"\b{re.escape(keyword)}\b", lower_text) is not None
 
 _MATCH_ID_RE = re.compile(r"\b(mat_[a-z0-9]+)\b", re.IGNORECASE)
+_STREET_SUFFIX = r"(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Ln|Lane|Way|Ct|Court)"
 _ADDRESS_RE = re.compile(
-    r"\b(\d{1,5}\s+[A-Za-z][A-Za-z'\.]*(?:\s+[A-Za-z][A-Za-z'\.]*)?\s+"
-    r"(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Ln|Lane|Way|Ct|Court))\b",
+    rf"\b(\d{{1,5}}\s+[A-Za-z][A-Za-z'\.]*(?:\s+[A-Za-z][A-Za-z'\.]*)?\s+{_STREET_SUFFIX})\b",
+    re.IGNORECASE,
+)
+# "I'm near Springdale Rd" — no street number, still a usable pickup point.
+_NEAR_RE = re.compile(
+    rf"\bnear\s+([A-Za-z][A-Za-z'\.]*(?:\s+[A-Za-z][A-Za-z'\.]*)?\s+{_STREET_SUFFIX})\b",
     re.IGNORECASE,
 )
 
@@ -135,7 +140,7 @@ def heuristic_parse(body: str) -> ParsedInboundMessage:
     if any(_has_keyword(w, lower) for w in ("urgent", "emergency", "asap", "life")):
         urgency = 5
 
-    address = _ADDRESS_RE.search(text)
+    address = _ADDRESS_RE.search(text) or _NEAR_RE.search(text)
     return ParsedInboundMessage(
         kind=kind,
         resource_type=resource_type,
