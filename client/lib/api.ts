@@ -21,12 +21,28 @@ export interface CrisisEvent {
   customers_affected: number | null;
 }
 
+export interface GeoPoint {
+  lat: number;
+  lon: number;
+}
+
+export interface Zone {
+  key: string;
+  name: string;
+  noaa_area: string;
+  fips_codes: string[];
+  center: GeoPoint | null;
+  radius_km: number;
+}
+
 export interface Offer {
   id: string;
   contact_name: string;
   resource_type: string;
   description: string;
   address: string;
+  zone: string;
+  location: GeoPoint | null;
   status: "open" | "matched" | "closed";
   created_at: string;
 }
@@ -39,6 +55,8 @@ export interface Request_ {
   urgency: number;
   vulnerability: string;
   address: string;
+  zone: string;
+  location: GeoPoint | null;
   status: "open" | "matched" | "closed";
   created_at: string;
 }
@@ -72,6 +90,7 @@ export interface Ping {
 
 export interface Status {
   demo_mode: boolean;
+  zones: Zone[];
   assessment: Assessment | null;
   last_cycle_at: string | null;
   offers: Offer[];

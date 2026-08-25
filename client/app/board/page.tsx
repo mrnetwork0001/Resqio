@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+// Leaflet touches `window`; render the map client-side only.
+const BoardMap = dynamic(() => import("@/components/BoardMap"), { ssr: false });
 import {
   Assessment,
   CrisisEvent,
@@ -187,6 +191,22 @@ export default function Board() {
           {status.assessment.summary}
         </p>
       ) : null}
+
+      {(offers.some((o) => o.location) || requests.some((r) => r.location)) && (
+        <div className="border border-line bg-panel">
+          <div className="flex items-baseline justify-between px-4 pt-3">
+            <h2 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+              Ops map
+            </h2>
+            <span className="font-mono text-[11px] text-muted/70">
+              offers · requests · match lines · zone radii
+            </span>
+          </div>
+          <div className="m-3 h-[320px] overflow-hidden border border-line">
+            <BoardMap offers={offers} requests={requests} matches={status?.matches ?? []} zones={status?.zones ?? []} />
+          </div>
+        </div>
+      )}
 
       <main className="grid flex-1 gap-4 lg:grid-cols-3">
         <Panel title="Situation" hint={`${events.length} active events`}>
