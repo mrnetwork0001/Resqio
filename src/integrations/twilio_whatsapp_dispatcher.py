@@ -43,10 +43,13 @@ class TwilioWhatsAppDispatcher:
 
     # ── Outbound ─────────────────────────────────────────────────────
 
-    def send_approval_ping(self, match_id: str, message_body: str) -> list[ApprovalPing]:
-        """Ping every registered captain. Returns the pings actually sent."""
+    def send_approval_ping(
+        self, match_id: str, message_body: str, captains: tuple[str, ...] | None = None
+    ) -> list[ApprovalPing]:
+        """Ping the given captains (a zone roster), falling back to the
+        global list, then to the console. Returns the pings actually sent."""
         pings: list[ApprovalPing] = []
-        captains = self._settings.captain_numbers or ("console",)
+        captains = captains or self._settings.captain_numbers or ("console",)
         for captain in captains:
             sendable = (
                 self.live

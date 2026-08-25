@@ -78,14 +78,17 @@ class GridFeed(Protocol):
 
 
 class NOAAAlertFeed:
-    """Polls NWS active alerts for a state via api.weather.gov.
+    """Polls NWS active alerts for one or more states via api.weather.gov.
 
-    A fetch failure means "no change", never "no alerts" — the daemon must
-    not stand down community logistics because the API had a bad minute.
+    Multi-zone deployments pass several areas — the API takes them as one
+    comma-separated query. A fetch failure means "no change", never
+    "no alerts" — the daemon must not stand down community logistics
+    because the API had a bad minute.
     """
 
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, areas: list[str] | None = None) -> None:
         self._settings = settings
+        self._areas = areas or [settings.noaa_area]
 
     def fetch_active_alerts(self) -> list[CrisisEvent]:
         headers = {
@@ -94,7 +97,7 @@ class NOAAAlertFeed:
         }
         # /alerts/active does NOT accept `limit` (400 if sent).
         params = {
-            "area": self._settings.noaa_area,
+            "area": ",".join(self._areas),
             "status": "actual",
             "message_type": "alert,update",
         }
@@ -175,11 +178,11 @@ class StaticAlertFeed:
         return events
 
 
-def build_feeds(settings: Settings) -> tuple[WeatherFeed, GridFeed]:
+def build_feeds(settings: Settings, areas: list[str] | None = None) -> tuple[WeatherFeed, GridFeed]:
     """Return (weather_feed, grid_feed) honoring demo mode."""
     if settings.demo_mode:
         return (
             StaticAlertFeed(settings.demo_dir / "nws_alerts.json"),
             SimulatedGridFeed(settings.demo_dir / "grid_outages.json"),
         )
-    return NOAAAlertFeed(settings), SimulatedGridFeed(settings.demo_dir / "grid_outages.json")
+    return NOAAAlertFeed(settings, areas), SimulatedGridFeed(settings.demo_dir / "grid_outages.json")

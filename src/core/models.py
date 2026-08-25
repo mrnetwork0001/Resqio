@@ -129,6 +129,7 @@ class ResourceOffer(BaseModel):
     quantity: int = 1
     location: GeoPoint | None = None
     address: str = ""
+    zone: str = "default"
     status: EntryStatus = EntryStatus.OPEN
     created_at: datetime = Field(default_factory=utcnow)
 
@@ -145,6 +146,7 @@ class ResourceRequest(BaseModel):
     vulnerability: Vulnerability = Vulnerability.NONE
     location: GeoPoint | None = None
     address: str = ""
+    zone: str = "default"
     status: EntryStatus = EntryStatus.OPEN
     created_at: datetime = Field(default_factory=utcnow)
 

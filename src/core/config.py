@@ -67,6 +67,12 @@ class Settings:
     match_ttl_minutes: int = field(
         default_factory=lambda: int(_env("RESQIO_MATCH_TTL_MINUTES", "45"))
     )
+    zones_file: Path = field(
+        default_factory=lambda: (
+            p if (p := Path(_env("RESQIO_ZONES_FILE", str(PROJECT_ROOT / "data" / "zones.json")))).is_absolute()
+            else PROJECT_ROOT / p  # relative values anchor to the repo, not the process CWD
+        )
+    )
     store_path: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "store.json")
     demo_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "demo")
 

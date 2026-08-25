@@ -1,0 +1,22 @@
+{
+  "zones": [
+    {
+      "key": "austin-east",
+      "name": "East Austin — Sector 4",
+      "noaa_area": "TX",
+      "fips_codes": ["48453", "048453"],
+      "captain_numbers": [],
+      "center": { "lat": 30.272, "lon": -97.7 },
+      "radius_km": 8
+    },
+    {
+      "key": "round-rock",
+      "name": "Round Rock — Williamson",
+      "noaa_area": "TX",
+      "fips_codes": ["48491", "048491"],
+      "captain_numbers": [],
+      "center": { "lat": 30.508, "lon": -97.679 },
+      "radius_km": 10
+    }
+  ]
+}

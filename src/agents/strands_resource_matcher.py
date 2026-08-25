@@ -48,7 +48,9 @@ everything else.
 2. Fitness for purpose: a generator serves a refrigeration need; ice serves it temporarily; \
 food does not.
 3. Proximity: shorter volunteer trips are safer trips during a disaster. Use your distance tool.
-4. One offer serves one request at a time — never double-book an offer.
+4. Zones are hard boundaries: only match an offer to a request in the SAME zone (an entry in \
+zone 'default' may match any zone). Volunteers serve their own neighborhood.
+5. One offer serves one request at a time — never double-book an offer.
 
 Only propose matches you would defend to a volunteer captain in one sentence. Requests that \
 nothing can serve go in unmet_request_ids so captains can escalate them."""
@@ -61,6 +63,11 @@ vulnerability, and a street address if present. Messages are informal — read t
 neighbor would."""
 
 # What an offered resource type can serve.
+def zones_compatible(zone_a: str, zone_b: str) -> bool:
+    """Same zone, or either side is 'default' (pre-zones entries match anywhere)."""
+    return zone_a == zone_b or "default" in (zone_a, zone_b)
+
+
 COMPATIBILITY: dict[ResourceType, set[ResourceType]] = {
     ResourceType.GENERATOR: {ResourceType.GENERATOR, ResourceType.MEDICAL, ResourceType.SHELTER},
     ResourceType.ICE: {ResourceType.ICE, ResourceType.MEDICAL, ResourceType.FOOD},
@@ -165,6 +172,8 @@ def heuristic_matches(store: CommunityStore) -> MatchProposal:
     for request in store.open_requests():  # already urgency-sorted, most urgent first
         best: tuple[float, ResourceOffer, float | None] | None = None
         for offer in offers:
+            if not zones_compatible(offer.zone, request.zone):
+                continue  # volunteers serve their own zone
             if request.resource_type not in COMPATIBILITY[offer.resource_type]:
                 continue
             score = 0.6 if offer.resource_type == request.resource_type else 0.5
@@ -201,18 +210,19 @@ def heuristic_matches(store: CommunityStore) -> MatchProposal:
 class StrandsResourceMatcher:
     """Ingests community SMS and matches supply capacity to urgent needs."""
 
-    def __init__(self, settings: Settings, store: CommunityStore) -> None:
+    def __init__(self, settings: Settings, store: CommunityStore, zones=None) -> None:
         self._settings = settings
         self.store = store
+        self._zones = zones  # ZoneRegistry | None — assigns inbound entries to service zones
 
         @tool
         def list_open_offers() -> str:
-            """List all currently open resource offers as JSON (id, type, description, address, lat/lon)."""
+            """List all currently open resource offers as JSON (id, type, description, address, lat/lon, zone)."""
             return json.dumps([o.model_dump(mode="json") for o in self.store.open_offers()], indent=2)
 
         @tool
         def list_open_requests() -> str:
-            """List open resource requests as JSON, most urgent first (id, type, urgency, vulnerability, address, lat/lon)."""
+            """List open resource requests as JSON, most urgent first (id, type, urgency, vulnerability, address, lat/lon, zone)."""
             return json.dumps([r.model_dump(mode="json") for r in self.store.open_requests()], indent=2)
 
         @tool
@@ -273,13 +283,14 @@ class StrandsResourceMatcher:
         as the parse result for the orchestrator to act on.
         """
         parsed = self.parse_inbound_sms(body)
+        zone = self._zones.assign(location) if self._zones is not None else "default"
         if parsed.kind == "offer":
             return self.store.add_offer(
                 ResourceOffer(
                     contact_name=contact_name, phone=phone,
                     resource_type=parsed.resource_type,
                     description=parsed.description or body,
-                    address=parsed.address, location=location,
+                    address=parsed.address, location=location, zone=zone,
                 )
             )
         if parsed.kind == "request":
@@ -289,7 +300,7 @@ class StrandsResourceMatcher:
                     resource_type=parsed.resource_type,
                     description=parsed.description or body,
                     urgency=parsed.urgency, vulnerability=parsed.vulnerability,
-                    address=parsed.address, location=location,
+                    address=parsed.address, location=location, zone=zone,
                 )
             )
         return parsed
@@ -308,6 +319,12 @@ class StrandsResourceMatcher:
                 continue
             if offer.status.value != "open" or request.status.value != "open":
                 logger.warning("dropping match on non-open entries: %s -> %s", offer.id, request.id)
+                continue
+            if not zones_compatible(offer.zone, request.zone):
+                logger.warning(
+                    "dropping cross-zone match %s (%s) -> %s (%s); request unserved this cycle",
+                    offer.id, offer.zone, request.id, request.zone,
+                )
                 continue
             match = Match(
                 offer_id=offer.id,

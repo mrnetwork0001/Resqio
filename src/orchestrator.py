@@ -30,6 +30,7 @@ from .core.models import (
 )
 from .core.models import utcnow
 from .core.store import CommunityStore, InvalidTransition
+from .core.zones import ZoneRegistry
 from .integrations.twilio_whatsapp_dispatcher import TwilioWhatsAppDispatcher
 
 logger = logging.getLogger("resqio.pipeline")
@@ -60,9 +61,10 @@ class ResqioPipeline:
     def __init__(self, settings: Settings | None = None, store: CommunityStore | None = None) -> None:
         self.settings = settings or get_settings()
         self.store = store or CommunityStore(self.settings.store_path)
-        weather_feed, grid_feed = build_feeds(self.settings)
+        self.zones = ZoneRegistry.load(self.settings)
+        weather_feed, grid_feed = build_feeds(self.settings, self.zones.noaa_areas())
         self.monitor = StrandsGridMonitor(self.settings, weather_feed, grid_feed)
-        self.matcher = StrandsResourceMatcher(self.settings, self.store)
+        self.matcher = StrandsResourceMatcher(self.settings, self.store, zones=self.zones)
         self.router = StrandsVolunteerRouter(self.settings)
         self.dispatcher = TwilioWhatsAppDispatcher(self.settings)
         self.last_report: CycleReport | None = None
@@ -105,7 +107,9 @@ class ResqioPipeline:
         )
         self.store.set_match_status(match.id, MatchStatus.PENDING_APPROVAL)
         report.new_matches.append(match)
-        report.pings.extend(self.dispatcher.send_approval_ping(match.id, plan.ping_message))
+        # Ping the roster of the zone where the need is.
+        captains = self.zones.captains_for(request.zone)
+        report.pings.extend(self.dispatcher.send_approval_ping(match.id, plan.ping_message, captains))
 
     def _expire_stale_matches(self) -> None:
         """Free resources locked behind pings nobody ever answered."""
@@ -174,6 +178,8 @@ class ResqioPipeline:
     def status(self) -> dict:
         return {
             "demo_mode": self.settings.demo_mode,
+            # Rosters are private — the unauthenticated dashboard never sees numbers.
+            "zones": [z.model_dump(exclude={"captain_numbers"}) for z in self.zones.zones.values()],
             "open_offers": len(self.store.open_offers()),
             "open_requests": len(self.store.open_requests()),
             "pending_matches": [m.model_dump(mode="json") for m in self.store.pending_matches()],
