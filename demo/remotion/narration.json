@@ -1,0 +1,81 @@
+{
+  "fps": 30,
+  "note": "text = what you read when recording; say = what the scratch voice reads (phonetic). minSecs = shortest the scene may be; actual length = max(minSecs, narration + 0.9 s).",
+  "scenes": [
+    {
+      "id": "v01",
+      "minSecs": 5,
+      "text": "This is Resqio. An AI agent that coordinates neighbors when the power fails.",
+      "say": "This is Resk-yo. An AI agent that coordinates neighbors when the power fails."
+    },
+    {
+      "id": "v02",
+      "minSecs": 12,
+      "text": "Austin, Texas. The heat index is over 110, and a feeder outage has cut power to twelve thousand customers. An eighty-two-year-old's insulin needs to stay cold. Emergency lines are already flooded."
+    },
+    {
+      "id": "v03",
+      "minSecs": 9,
+      "text": "A few blocks away, a neighbor has a generator in the garage. The help exists. What's missing is someone to connect them, fast."
+    },
+    {
+      "id": "v04",
+      "minSecs": 10,
+      "text": "Resqio is for the people who already show up: block captains, mutual-aid groups, food banks, and shelters. Residents don't install anything. They just send a text.",
+      "say": "Resk-yo is for the people who already show up: block captains, mutual-aid groups, food banks, and shelters. Residents don't install anything. They just send a text."
+    },
+    {
+      "id": "v05",
+      "minSecs": 11,
+      "text": "It runs in the background, around the clock. It stays silent, and only asks a human when a real delivery needs a yes."
+    },
+    {
+      "id": "v06",
+      "minSecs": 16,
+      "text": "Under the hood are three agents built with the Strands Agents SDK. A grid monitor watches NOAA weather alerts and power outages. A resource matcher turns texts into offers and needs. A volunteer router plans a safe trip and writes one approval message.",
+      "say": "Under the hood are three agents built with the Strands Agents SDK. A grid monitor watches Noah weather alerts and power outages. A resource matcher turns texts into offers and needs. A volunteer router plans a safe trip and writes one approval message."
+    },
+    {
+      "id": "v07",
+      "minSecs": 14,
+      "text": "Here's the live board. Four neighbors text in. A generator. Bags of ice. A father who needs his insulin kept cold. A family with a three-month-old. Resqio turns every message into structured offers and requests.",
+      "say": "Here's the live board. Four neighbors text in. A generator. Bags of ice. A father who needs his insulin kept cold. A family with a three-month-old. Resk-yo turns every message into structured offers and requests."
+    },
+    {
+      "id": "v08",
+      "minSecs": 14,
+      "text": "One background cycle. An extreme heat warning overlaps the outage in the same county, so the crisis level jumps to five. The generator is matched to the insulin request, one point two kilometers away."
+    },
+    {
+      "id": "v09",
+      "minSecs": 9,
+      "text": "The router adds heat and dark-intersection safety guidance, then sends exactly one message to a volunteer captain."
+    },
+    {
+      "id": "v10",
+      "minSecs": 16,
+      "text": "The captain accepts. That's the only decision a person makes. When the drop-off is done, they confirm delivery, and the loop closes."
+    },
+    {
+      "id": "v11",
+      "minSecs": 12,
+      "text": "Every agent returns validated, structured output, and every proposal is checked against the live board before anything is booked. The model proposes. The code decides what's allowed."
+    },
+    {
+      "id": "v12",
+      "minSecs": 12,
+      "text": "A disaster tool can't assume the cloud is up. Every step has a deterministic fallback, and the whole loop is packaged to run as a background agent on Amazon Bedrock AgentCore."
+    },
+    {
+      "id": "v13",
+      "minSecs": 9,
+      "text": "And when two captains reply to the same ping, a late pass can't undo a delivery someone already accepted."
+    },
+    {
+      "id": "v14",
+      "minSecs": 8,
+      "text": "Resqio is open source. Fork it for your county. The next storm isn't waiting.",
+      "say": "Resk-yo is open source. Fork it for your county. The next storm isn't waiting."
+    }
+  ]
+}
