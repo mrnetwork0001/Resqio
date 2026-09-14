@@ -74,7 +74,7 @@ export default function SiteFooter() {
           <p className="mt-6 max-w-[46ch] text-[15px] leading-relaxed text-muted">
             An autonomous disaster-logistics agent for neighborhoods, food
             banks, and volunteer groups. Weather and grid feeds watched 24/7,
-            community SMS matched to urgent need — surfaced to a human only
+            community SMS matched to urgent need - surfaced to a human only
             when a delivery needs a one-tap approval.
           </p>
           <div className="mt-6 flex gap-4">
@@ -94,7 +94,7 @@ export default function SiteFooter() {
             <h4 className="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-accent">
               {col.title}
             </h4>
-            <ul className="mt-5 flex flex-col gap-3.5">
+            <ul className="mt-4 flex flex-col gap-2">
               {col.links.map((link) => (
                 <li key={link.label}>
                   {link.external ? (
@@ -117,21 +117,6 @@ export default function SiteFooter() {
             </ul>
           </nav>
         ))}
-      </div>
-
-      {/* ── Bottom strip ── */}
-      <div className="border-t border-line/70">
-        <div className="mx-auto flex max-w-6xl flex-wrap gap-x-8 gap-y-2 px-6 py-5 font-mono text-[11px] uppercase tracking-wider text-muted">
-          <span>© 2026 Resqio · Apache 2.0</span>
-          <span className="sm:ml-auto">Built for the AWS Agents for Humans Hackathon</span>
-        </div>
-      </div>
-
-      {/* ── Giant wordmark ── */}
-      <div aria-hidden="true" className="select-none overflow-hidden pb-2">
-        <div className="text-outline-faint whitespace-nowrap text-center font-display text-[22vw] uppercase leading-[0.78]">
-          Resqio
-        </div>
       </div>
     </footer>
   );
