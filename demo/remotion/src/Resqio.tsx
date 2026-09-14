@@ -160,11 +160,11 @@ function WhoItsFor() {
           </div>
         ))}
       </div>
-      <div style={{ ...useRise(78, 30), position: 'absolute', right: 130, bottom: 150, width: 700 }}>
+      <div style={{ ...useRise(78, 30), position: 'absolute', right: 130, bottom: 150, width: 520 }}>
         <div style={{ background: '#1f2c1f', color: C.ink, fontFamily: FONT.sans, fontSize: 30, lineHeight: 1.35, padding: '22px 26px', borderRadius: '22px 22px 4px 22px' }}>
           HELP: insulin needs refrigeration at 42 Maple St.
         </div>
-        <div style={{ fontFamily: FONT.mono, fontSize: 22, color: C.accent, letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 18, textAlign: 'right' }}>
+        <div style={{ fontFamily: FONT.mono, fontSize: 22, color: C.accent, letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 18, textAlign: 'right', whiteSpace: 'nowrap' }}>
           No app. No account. Just a text.
         </div>
       </div>
