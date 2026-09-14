@@ -1,7 +1,8 @@
 // Client for the Resqio runtime's dashboard API (webhook server, :5001).
 
-export const API_BASE =
-  process.env.NEXT_PUBLIC_RESQIO_API ?? "http://localhost:5001";
+// Same-origin by default: next.config.mjs proxies API routes to the runtime.
+// Set NEXT_PUBLIC_RESQIO_API to call a runtime directly instead.
+export const API_BASE = process.env.NEXT_PUBLIC_RESQIO_API ?? "";
 
 export interface Assessment {
   is_crisis: boolean;
