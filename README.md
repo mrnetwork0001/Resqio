@@ -271,7 +271,7 @@ The live local runtime is a **single process** — the webhook server ingests in
 ## ✅ Testing
 
 ```bash
-python -m pytest        # 77 tests, ~2 s, fully offline
+python -m pytest        # 82 tests, ~2 s, fully offline
 ```
 
 The suite covers the NWS alert parser (dedupe, cancels, `ends` fallback), the grid severity ladder, the store's state machine and persistence (including corrupt-file quarantine), heuristic parsing and matching, route planning, match-TTL expiry, stale-reply guards, zone assignment and zone-scoped matching, and the full pipeline cycle — all on the degraded-mode paths, so CI needs no cloud. With AWS credentials configured, the same commands switch to live Claude reasoning on Bedrock (the live validation run is a [roadmap](#-roadmap) item).
