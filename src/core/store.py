@@ -152,6 +152,25 @@ class CommunityStore:
         if request is not None and request.status == EntryStatus.MATCHED:
             request.status = new_status
 
+    def prune_closed_matches(self, cutoff: datetime) -> int:
+        """Drop declined/expired matches created before ``cutoff``.
+
+        Unanswered pings expire and re-match every TTL window, so a deployment
+        left running for weeks piles up hundreds of dead matches. Pending,
+        approved, and delivered matches are never removed. Returns the count.
+        """
+        with self._lock:
+            stale = [
+                match_id for match_id, match in self.matches.items()
+                if match.status in (MatchStatus.DECLINED, MatchStatus.EXPIRED)
+                and match.created_at < cutoff
+            ]
+            for match_id in stale:
+                del self.matches[match_id]
+            if stale:
+                self._save()
+        return len(stale)
+
     def clear(self) -> None:
         """Wipe the board (demo resets only)."""
         with self._lock:

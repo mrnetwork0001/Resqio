@@ -75,6 +75,7 @@ class ResqioPipeline:
     def run_cycle(self) -> CycleReport:
         """One full monitor → match → route → ping pass. Never raises."""
         self._expire_stale_matches()
+        self._enforce_retention()
         events = self.monitor.poll()
         assessment = self.monitor.assess(events)
         report = CycleReport(assessment=assessment)
@@ -122,6 +123,18 @@ class ResqioPipeline:
                     "match %s expired after %s min without approval; both sides reopened",
                     match.id, self.settings.match_ttl_minutes,
                 )
+
+    def _enforce_retention(self) -> None:
+        """Keep long-running deployments bounded: prune old dead matches, cap the ping log."""
+        if self.settings.match_retention_hours > 0:
+            cutoff = utcnow() - timedelta(hours=self.settings.match_retention_hours)
+            removed = self.store.prune_closed_matches(cutoff)
+            if removed:
+                logger.info("pruned %d declined/expired matches older than %sh",
+                            removed, self.settings.match_retention_hours)
+        limit = self.settings.ping_log_limit
+        if limit > 0 and len(self.dispatcher.sent) > limit:
+            del self.dispatcher.sent[:-limit]
 
     # ── Inbound SMS/WhatsApp (webhook or seeded demo messages) ───────
 

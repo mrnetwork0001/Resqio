@@ -67,6 +67,13 @@ class Settings:
     match_ttl_minutes: int = field(
         default_factory=lambda: int(_env("RESQIO_MATCH_TTL_MINUTES", "45"))
     )
+    # Retention for long-running deployments (0 disables pruning / the cap).
+    match_retention_hours: int = field(
+        default_factory=lambda: int(_env("RESQIO_MATCH_RETENTION_HOURS", "6"))
+    )
+    ping_log_limit: int = field(
+        default_factory=lambda: int(_env("RESQIO_PING_LOG_LIMIT", "500"))
+    )
     zones_file: Path = field(
         default_factory=lambda: (
             p if (p := Path(_env("RESQIO_ZONES_FILE", str(PROJECT_ROOT / "data" / "zones.json")))).is_absolute()
