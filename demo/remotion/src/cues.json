@@ -1,0 +1,37 @@
+{
+  "v02": {
+    "heat": 2.16,
+    "outage": 5.82,
+    "insulin": 12.04,
+    "emergency": 14.64
+  },
+  "v03": {
+    "generator": 2.51,
+    "missing": 6.33,
+    "connect": 7.55
+  },
+  "v04": {
+    "block": 3.67,
+    "mutual": 5.31,
+    "food": 6.57,
+    "shelters": 7.63,
+    "text": 12.01
+  },
+  "v06": {
+    "grid": 5.41,
+    "resource": 10.53,
+    "volunteer": 14.69,
+    "approval": 17.91
+  },
+  "v12": {
+    "fallback": 5.78,
+    "bedrock": 11.28
+  },
+  "v13": {
+    "pass": 3.46,
+    "undo": 4.36
+  },
+  "v14": {
+    "fork": 2.55
+  }
+}

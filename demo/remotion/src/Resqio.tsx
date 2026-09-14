@@ -5,10 +5,11 @@ import React from 'react'
 import { AbsoluteFill, Audio, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion'
 import narration from '../narration.json'
 import voManifest from './vo-manifest.json'
+import cuesManifest from './cues.json'
 import { Backdrop, Body, C, Caption, Chip, Counter, Eyebrow, FONT, Footage, Headline, SceneFade, useRise } from './ui'
 
 type SceneDef = { id: string; minSecs: number; text: string; say?: string }
-type SceneProps = { dur: number }
+type SceneProps = { dur: number; cue: (name: string, fallback: number) => number }
 
 export const FPS = 30
 const PAD_SECS = 0.9 // keep in sync with scripts/voiceover.mjs
@@ -17,6 +18,7 @@ const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const
 
 const SCENES = (narration as { scenes: SceneDef[] }).scenes
 const VO = voManifest as { source: string | null; scenes: Record<string, number> }
+const CUES = cuesManifest as Record<string, Record<string, number>>
 
 const Layout: React.FC<{ children: React.ReactNode; glow?: 'accent' | 'danger' | 'ok' }> = ({ children, glow }) => (
   <AbsoluteFill>
@@ -62,7 +64,7 @@ const StatCard: React.FC<{ delay: number; tone: string; label: string; value: Re
 )
 
 // v02 ─ The problem
-function Problem() {
+function Problem({ cue }: SceneProps) {
   return (
     <Layout glow="danger">
       <Eyebrow color={C.danger}>The problem · Austin, Texas</Eyebrow>
@@ -71,23 +73,24 @@ function Problem() {
         <Headline size={110} outline delay={8}>the heat peaks.</Headline>
       </div>
       <div style={{ display: 'flex', gap: 28, marginTop: 64 }}>
-        <StatCard delay={22} tone={C.danger} label="NWS alert · extreme" value="Excessive heat warning" sub="Heat index up to 112°F" valueSize={56} />
-        <StatCard delay={34} tone={C.warn} label="Grid · Travis County" value={<Counter to={12400} delay={40} frames={45} />} sub="customers without power" />
-        <StatCard delay={46} tone={C.danger} label="Incoming text · urgency 5/5" value="Insulin needs to stay cold" sub="82 years old · 42 Maple St" valueSize={56} />
+        <StatCard delay={cue('heat', 22)} tone={C.danger} label="NWS alert · extreme" value="Excessive heat warning" sub="Heat index up to 112°F" valueSize={56} />
+        <StatCard delay={cue('outage', 34)} tone={C.warn} label="Grid · Travis County" value={<Counter to={12400} delay={cue('outage', 34) + 6} frames={45} />} sub="customers without power" />
+        <StatCard delay={cue('insulin', 46)} tone={C.danger} label="Incoming text · urgency 5/5" value="Insulin needs to stay cold" sub="82 years old · 42 Maple St" valueSize={56} />
       </div>
       <div style={{ marginTop: 46 }}>
-        <Body delay={70} size={34} color={C.ink}>Emergency lines are already flooded.</Body>
+        <Body delay={cue('emergency', 70)} size={34} color={C.ink}>Emergency lines are already flooded.</Body>
       </div>
     </Layout>
   )
 }
 
 // v03 ─ The help exists
-function HelpExists() {
+function HelpExists({ cue }: SceneProps) {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
   const pop = (d: number) => spring({ frame: frame - d, fps, config: { damping: 12, mass: 0.5 } })
-  const line = interpolate(frame, [70, 110], [0, 1], clamp)
+  const drawAt = cue('connect', 70)
+  const line = interpolate(frame, [drawAt, drawAt + 40], [0, 1], clamp)
   const req = { x: 190, y: 430 }
   const gen = { x: 610, y: 160 }
   return (
@@ -97,8 +100,8 @@ function HelpExists() {
           <Eyebrow>A few blocks away</Eyebrow>
           <div style={{ marginTop: 22 }}>
             <Headline size={100}>The help exists.</Headline>
-            <Headline size={100} outline delay={40}>The coordination</Headline>
-            <Headline size={100} outline delay={46}>doesn't.</Headline>
+            <Headline size={100} outline delay={cue('missing', 40)}>The coordination</Headline>
+            <Headline size={100} outline delay={cue('missing', 40) + 6}>doesn't.</Headline>
           </div>
         </div>
         <div style={{ ...useRise(6, 30), position: 'relative', width: 800, height: 600, background: C.panel, border: `1px solid ${C.line}` }}>
@@ -120,15 +123,15 @@ function HelpExists() {
             />
             <circle cx={req.x} cy={req.y} r={20 * pop(20)} fill={C.danger} />
             <circle cx={req.x} cy={req.y} r={20 + ((frame % 45) / 45) * 34} fill="none" stroke={C.danger} strokeWidth={3} opacity={pop(20) * (1 - (frame % 45) / 45)} />
-            <circle cx={gen.x} cy={gen.y} r={20 * pop(42)} fill={C.ok} />
+            <circle cx={gen.x} cy={gen.y} r={20 * pop(cue('generator', 42))} fill={C.ok} />
           </svg>
           <div style={{ ...useRise(26, 12), position: 'absolute', left: req.x - 40, top: req.y + 36 }}>
             <Chip color={C.danger}>Insulin · urgency 5/5</Chip>
           </div>
-          <div style={{ ...useRise(48, 12), position: 'absolute', left: gen.x - 260, top: gen.y - 74 }}>
+          <div style={{ ...useRise(cue('generator', 42) + 6, 12), position: 'absolute', left: gen.x - 260, top: gen.y - 74 }}>
             <Chip color={C.ok}>Generator · 7.5 kW</Chip>
           </div>
-          <div style={{ ...useRise(104, 12), position: 'absolute', left: 330, top: 256 }}>
+          <div style={{ ...useRise(drawAt + 34, 12), position: 'absolute', left: 330, top: 256 }}>
             <Chip color={C.accent} filled>1.2 km</Chip>
           </div>
         </div>
@@ -138,7 +141,7 @@ function HelpExists() {
 }
 
 // v04 ─ Who it's for
-function WhoItsFor() {
+function WhoItsFor({ cue }: SceneProps) {
   const cards = [
     ['Block captains', 'A WhatsApp group and whatever is in the garages.'],
     ['Mutual-aid groups', 'Volunteers dispatched with routes, not group-chat chaos.'],
@@ -154,13 +157,13 @@ function WhoItsFor() {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 56, width: 1100 }}>
         {cards.map(([title, sub], i) => (
-          <div key={title} style={{ ...useRise(22 + i * 10, 28), background: C.panel, border: `1px solid ${C.line}`, padding: '26px 30px' }}>
+          <div key={title} style={{ ...useRise(cue(['block', 'mutual', 'food', 'shelters'][i], 22 + i * 10), 28), background: C.panel, border: `1px solid ${C.line}`, padding: '26px 30px' }}>
             <div style={{ fontFamily: FONT.display, fontSize: 44, color: C.ink, textTransform: 'uppercase' }}>{title}</div>
             <div style={{ fontFamily: FONT.sans, fontSize: 25, color: C.muted, marginTop: 8 }}>{sub}</div>
           </div>
         ))}
       </div>
-      <div style={{ ...useRise(78, 30), position: 'absolute', right: 130, bottom: 150, width: 520 }}>
+      <div style={{ ...useRise(cue('text', 78), 30), position: 'absolute', right: 130, bottom: 150, width: 520 }}>
         <div style={{ background: '#1f2c1f', color: C.ink, fontFamily: FONT.sans, fontSize: 30, lineHeight: 1.35, padding: '22px 26px', borderRadius: '22px 22px 4px 22px' }}>
           HELP: insulin needs refrigeration at 42 Maple St.
         </div>
@@ -184,7 +187,7 @@ function Landing({ dur }: SceneProps) {
 }
 
 // v06 ─ Three Strands agents
-function Agents() {
+function Agents({ cue }: SceneProps) {
   const frame = useCurrentFrame()
   const nodes = [
     { verb: 'Watch', name: 'StrandsGridMonitor', what: 'NOAA alerts + outages → crisis 0-5', human: false },
@@ -201,7 +204,7 @@ function Agents() {
       </div>
       <div style={{ display: 'flex', alignItems: 'stretch', marginTop: 80 }}>
         {nodes.map((n, i) => {
-          const delay = 30 + i * 60
+          const delay = cue(['grid', 'resource', 'volunteer', 'approval'][i], 30 + i * 60)
           const wire = interpolate(frame, [delay + 30, delay + 60], [0, 1], clamp)
           return (
             <React.Fragment key={n.verb}>
@@ -339,7 +342,7 @@ function ModelProposes() {
 }
 
 // v12 ─ Built for the worst day
-function WorstDay() {
+function WorstDay({ cue }: SceneProps) {
   const rows: Array<[string, string, string]> = [
     ['Crisis assessment', 'Claude scores the situation', 'Severity thresholds + county overlap'],
     ['Reading texts', 'Claude parses informal SMS', 'Word-boundary keyword parser'],
@@ -360,14 +363,14 @@ function WorstDay() {
           <div style={{ padding: '16px 24px', color: C.ok }}>If the cloud is down</div>
         </div>
         {rows.map(([step, live, fallback], i) => (
-          <div key={step} style={{ ...useRise(24 + i * 10, 16), display: 'grid', gridTemplateColumns: '1fr 1.3fr 1.3fr', borderTop: `1px solid ${C.line}`, fontFamily: FONT.sans, fontSize: 28 }}>
+          <div key={step} style={{ ...useRise(cue('fallback', 24) + i * 10, 16), display: 'grid', gridTemplateColumns: '1fr 1.3fr 1.3fr', borderTop: `1px solid ${C.line}`, fontFamily: FONT.sans, fontSize: 28 }}>
             <div style={{ padding: '18px 24px', color: C.ink, fontWeight: 600 }}>{step}</div>
             <div style={{ padding: '18px 24px', color: C.muted }}>{live}</div>
             <div style={{ padding: '18px 24px', color: C.ink }}>{fallback}</div>
           </div>
         ))}
       </div>
-      <div style={{ ...useRise(70, 16), display: 'flex', gap: 18, marginTop: 34 }}>
+      <div style={{ ...useRise(cue('bedrock', 70), 16), display: 'flex', gap: 18, marginTop: 34 }}>
         <Chip color={C.accent}>Packaged for Amazon Bedrock AgentCore</Chip>
         <Chip color={C.muted}>Background daemon · HealthyBusy</Chip>
       </div>
@@ -376,14 +379,14 @@ function WorstDay() {
 }
 
 // v13 ─ Guarded decisions
-function Guarded({ dur }: SceneProps) {
+function Guarded({ dur, cue }: SceneProps) {
   const frame = useCurrentFrame()
   const states = ['Proposed', 'Pending', 'Approved', 'Delivered']
-  const hit = Math.round(dur * 0.45)
+  const hit = cue('pass', Math.round(dur * 0.45)) + 10
   const tokenX = interpolate(frame, [hit - 24, hit, hit + 16], [420, 0, 150], clamp)
   const tokenOpacity = interpolate(frame, [hit - 30, hit - 20, hit + 30, hit + 42], [0, 1, 1, 0.35], clamp)
   const shake = frame >= hit && frame < hit + 10 ? Math.sin((frame - hit) * 2.4) * 8 : 0
-  const verdict = useRise(hit + 8, 16)
+  const verdict = useRise(Math.max(hit + 8, cue('undo', hit + 8)), 16)
   return (
     <Layout>
       <Eyebrow>Guarded decisions</Eyebrow>
@@ -414,7 +417,7 @@ function Guarded({ dur }: SceneProps) {
 }
 
 // v14 ─ Close
-function Close() {
+function Close({ cue }: SceneProps) {
   return (
     <AbsoluteFill>
       <Backdrop />
@@ -423,8 +426,8 @@ function Close() {
         <div style={{ ...useRise(14, 24), fontFamily: FONT.display, fontSize: 96, color: C.ink, textTransform: 'uppercase' }}>
           The next storm isn't waiting.
         </div>
-        <div style={{ ...useRise(26, 16), fontFamily: FONT.mono, fontWeight: 600, fontSize: 40, color: C.accent }}>tryresqio.vercel.app</div>
-        <div style={{ ...useRise(34, 16), fontFamily: FONT.mono, fontSize: 24, color: C.muted, letterSpacing: '0.08em' }}>
+        <div style={{ ...useRise(cue('fork', 26), 16), fontFamily: FONT.mono, fontWeight: 600, fontSize: 40, color: C.accent }}>tryresqio.vercel.app</div>
+        <div style={{ ...useRise(cue('fork', 26) + 8, 16), fontFamily: FONT.mono, fontSize: 24, color: C.muted, letterSpacing: '0.08em' }}>
           github.com/mrnetwork0001/Resqio · Open source · Apache 2.0
         </div>
       </AbsoluteFill>
@@ -461,6 +464,13 @@ export const TIMELINE = (() => {
 
 export const RESQIO_DURATION = TIMELINE.reduce((sum, t) => sum + t.frames, 0)
 
+// Frame (within a scene) where a spoken cue word begins, so reveals land on the words.
+// Falls back to the scene's default timing when there is no cue for this voice.
+const cueFor = (id: string) => (name: string, fallback: number) => {
+  const secs = CUES[id]?.[name]
+  return secs == null ? fallback : Math.max(0, VO_DELAY_FRAMES + Math.round(secs * FPS) - 3)
+}
+
 const ScratchTag: React.FC = () => (
   <div
     style={{
@@ -488,7 +498,7 @@ export const Resqio: React.FC = () => (
       const Scene = COMPONENTS[t.id]
       return (
         <Sequence key={t.id} from={t.start} durationInFrames={t.frames} name={t.id}>
-          <SceneFade dur={t.frames}>{Scene ? <Scene dur={t.frames} /> : <Backdrop />}</SceneFade>
+          <SceneFade dur={t.frames}>{Scene ? <Scene dur={t.frames} cue={cueFor(t.id)} /> : <Backdrop />}</SceneFade>
           {VO.scenes[t.id] ? (
             <Sequence from={VO_DELAY_FRAMES}>
               <Audio src={staticFile(`vo/${t.id}.mp3`)} />

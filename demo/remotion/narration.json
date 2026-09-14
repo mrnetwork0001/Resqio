@@ -1,6 +1,6 @@
 {
   "fps": 30,
-  "note": "text = what you read when recording; say = what the scratch voice reads (phonetic). minSecs = shortest the scene may be; actual length = max(minSecs, narration + 0.9 s).",
+  "note": "text = what you read when recording; say = what the scratch voice reads (phonetic). minSecs = shortest the scene may be; actual length = max(minSecs, narration + 0.9 s). cues = on-screen reveals that land on the spoken word (name -> word).",
   "scenes": [
     {
       "id": "v01",
@@ -11,18 +11,36 @@
     {
       "id": "v02",
       "minSecs": 12,
-      "text": "Austin, Texas. The heat index is over 110, and a feeder outage has cut power to twelve thousand customers. An eighty-two-year-old's insulin needs to stay cold. Emergency lines are already flooded."
+      "text": "Austin, Texas. The heat index is over 110, and a feeder outage has cut power to twelve thousand customers. An eighty-two-year-old's insulin needs to stay cold. Emergency lines are already flooded.",
+      "cues": {
+        "heat": "heat",
+        "outage": "outage",
+        "insulin": "insulin",
+        "emergency": "emergency"
+      }
     },
     {
       "id": "v03",
       "minSecs": 9,
-      "text": "A few blocks away, a neighbor has a generator in the garage. The help exists. What's missing is someone to connect them, fast."
+      "text": "A few blocks away, a neighbor has a generator in the garage. The help exists. What's missing is someone to connect them, fast.",
+      "cues": {
+        "generator": "generator",
+        "missing": "missing",
+        "connect": "connect"
+      }
     },
     {
       "id": "v04",
       "minSecs": 10,
       "text": "Resqio is for the people who already show up: block captains, mutual-aid groups, food banks, and shelters. Residents don't install anything. They just send a text.",
-      "say": "Resk-yo is for the people who already show up: block captains, mutual-aid groups, food banks, and shelters. Residents don't install anything. They just send a text."
+      "say": "Resk-yo is for the people who already show up: block captains, mutual-aid groups, food banks, and shelters. Residents don't install anything. They just send a text.",
+      "cues": {
+        "block": "block",
+        "mutual": "mutual",
+        "food": "food",
+        "shelters": "shelters",
+        "text": "text"
+      }
     },
     {
       "id": "v05",
@@ -33,7 +51,13 @@
       "id": "v06",
       "minSecs": 16,
       "text": "Under the hood are three agents built with the Strands Agents SDK. A grid monitor watches NOAA weather alerts and power outages. A resource matcher turns texts into offers and needs. A volunteer router plans a safe trip and writes one approval message.",
-      "say": "Under the hood are three agents built with the Strands Agents SDK. A grid monitor watches Noah weather alerts and power outages. A resource matcher turns texts into offers and needs. A volunteer router plans a safe trip and writes one approval message."
+      "say": "Under the hood are three agents built with the Strands Agents SDK. A grid monitor watches Noah weather alerts and power outages. A resource matcher turns texts into offers and needs. A volunteer router plans a safe trip and writes one approval message.",
+      "cues": {
+        "grid": "grid",
+        "resource": "resource",
+        "volunteer": "volunteer",
+        "approval": "approval"
+      }
     },
     {
       "id": "v07",
@@ -64,18 +88,29 @@
     {
       "id": "v12",
       "minSecs": 12,
-      "text": "A disaster tool can't assume the cloud is up. Every step has a deterministic fallback, and the whole loop is packaged to run as a background agent on Amazon Bedrock AgentCore."
+      "text": "A disaster tool can't assume the cloud is up. Every step has a deterministic fallback, and the whole loop is packaged to run as a background agent on Amazon Bedrock AgentCore.",
+      "cues": {
+        "fallback": "fallback",
+        "bedrock": "bedrock"
+      }
     },
     {
       "id": "v13",
       "minSecs": 9,
-      "text": "And when two captains reply to the same ping, a late pass can't undo a delivery someone already accepted."
+      "text": "And when two captains reply to the same ping, a late pass can't undo a delivery someone already accepted.",
+      "cues": {
+        "pass": "pass",
+        "undo": "undo"
+      }
     },
     {
       "id": "v14",
       "minSecs": 8,
       "text": "Resqio is open source. Fork it for your county. The next storm isn't waiting.",
-      "say": "Resk-yo is open source. Fork it for your county. The next storm isn't waiting."
+      "say": "Resk-yo is open source. Fork it for your county. The next storm isn't waiting.",
+      "cues": {
+        "fork": "fork"
+      }
     }
   ]
 }
