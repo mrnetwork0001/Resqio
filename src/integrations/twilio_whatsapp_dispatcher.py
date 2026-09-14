@@ -63,7 +63,10 @@ class TwilioWhatsAppDispatcher:
                 try:
                     ping = self._send_via_twilio(match_id, captain, message_body)
                 except Exception as exc:  # noqa: BLE001 - one bad number must not strand the match
-                    logger.error("Twilio send to %s failed (%s); falling back to console", captain, exc)
+                    logger.error(
+                        "Twilio send to %s failed (%s); falling back to console",
+                        self.masked(captain), self._scrub(str(exc), captain),
+                    )
                     ping = self._send_via_console(match_id, captain, message_body)
             else:
                 ping = self._send_via_console(match_id, captain, message_body)
@@ -79,12 +82,14 @@ class TwilioWhatsAppDispatcher:
         if is_whatsapp and content_sid:
             # Approved quick-reply template ({{1}} = ping text) for
             # business-initiated sends outside the 24-h session window.
+            # Newer WhatsApp sandboxes reject free-form bodies entirely
+            # ("ContentSid Required"), and trial accounts cannot create templates.
             kwargs["content_sid"] = content_sid
             kwargs["content_variables"] = json.dumps({"1": body})  # must be a JSON *string*
         else:
             kwargs["body"] = body
         message = self._client.messages.create(**kwargs)
-        logger.info("ping sent to %s (sid=%s, status=%s)", captain, message.sid, message.status)
+        logger.info("ping sent to %s (sid=%s, status=%s)", self.masked(captain), message.sid, message.status)
         return ApprovalPing(
             match_id=match_id,
             captain_phone=captain,
@@ -94,11 +99,30 @@ class TwilioWhatsAppDispatcher:
 
     def _send_via_console(self, match_id: str, captain: str, body: str) -> ApprovalPing:
         print("\n" + "═" * 62)
-        print("📱  VOLUNTEER CAPTAIN PING" + (f"  →  {captain}" if captain != "console" else "  (demo console)"))
+        print("📱  VOLUNTEER CAPTAIN PING" + (f"  →  {self.masked(captain)}" if captain != "console" else "  (demo console)"))
         print("─" * 62)
         print(body)
         print("═" * 62)
         return ApprovalPing(match_id=match_id, captain_phone=captain, message_body=body, channel="console")
+
+    # ── Privacy ──────────────────────────────────────────────────────
+
+    @staticmethod
+    def masked(number: str) -> str:
+        """A phone number safe for logs and the public dashboard: +234…306."""
+        if not number or number == "console":
+            return number
+        prefix = "whatsapp:" if number.startswith("whatsapp:") else ""
+        digits = number[len(prefix):]
+        if len(digits) <= 7:
+            return prefix + "***"
+        return f"{prefix}{digits[:4]}…{digits[-3:]}"
+
+    @classmethod
+    def _scrub(cls, text: str, number: str) -> str:
+        """Remove a full phone number from provider error text before logging."""
+        digits = number.split(":", 1)[-1]
+        return text.replace(number, cls.masked(number)).replace(digits, cls.masked(digits))
 
     # ── Inbound (webhook form → normalized reply) ────────────────────
 

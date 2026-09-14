@@ -204,5 +204,9 @@ class ResqioPipeline:
             "offers": [o.model_dump(mode="json") for o in self.store.offers.values()],
             "requests": [r.model_dump(mode="json") for r in self.store.requests.values()],
             "matches": [m.model_dump(mode="json") for m in self.store.matches.values()],
-            "pings": [p.model_dump(mode="json") for p in self.dispatcher.sent],
+            # /status is public; captain numbers are masked (stored in full internally for sending).
+            "pings": [
+                {**p.model_dump(mode="json"), "captain_phone": TwilioWhatsAppDispatcher.masked(p.captain_phone)}
+                for p in self.dispatcher.sent
+            ],
         }
