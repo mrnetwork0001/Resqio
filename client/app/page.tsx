@@ -19,7 +19,7 @@ const PARTS = [
     n: "01",
     title: "Grid & Weather Monitor",
     file: "strands_grid_monitor.py",
-    body: "Polls NOAA/NWS alerts and county-level outage records around the clock, correlating hazards that share county FIPS codes. An extreme heat warning colliding with a 12,400-customer feeder outage is read as the compounding emergency it is — and scored 0–5.",
+    body: "Polls NOAA/NWS alerts and county-level outage records around the clock, correlating hazards that share county FIPS codes. An extreme heat warning colliding with a 12,400-customer feeder outage is read as the compounding emergency it is - and scored 0–5.",
   },
   {
     n: "02",
@@ -31,13 +31,13 @@ const PARTS = [
     n: "03",
     title: "Volunteer Router",
     file: "strands_volunteer_router.py",
-    body: "Plans crisis-condition transit with per-hazard guidance — dark intersections during outages, heat exposure, flooded roads — and writes the single approval message a captain sees, always ending with two reply options.",
+    body: "Plans crisis-condition transit with per-hazard guidance - dark intersections during outages, heat exposure, flooded roads - and writes the single approval message a captain sees, always ending with two reply options.",
   },
   {
     n: "04",
     title: "WhatsApp Dispatch",
     file: "twilio_whatsapp_dispatcher.py",
-    body: "The pipeline's only outward surface. One ping, two buttons — Accept dispatches the delivery, Pass puts both sides back on the board. Signature-validated inbound webhooks close the loop when the captain replies DELIVERED.",
+    body: "The pipeline's only outward surface. One ping, two buttons - Accept dispatches the delivery, Pass puts both sides back on the board. Signature-validated inbound webhooks close the loop when the captain replies DELIVERED.",
   },
 ];
 
@@ -49,21 +49,21 @@ const STATS = [
 ];
 
 const FRAMES = [
-  { t: 2.2, tag: "DETECT", caption: "Heat warning × feeder outage on overlapping counties — crisis level 5/5." },
+  { t: 2.2, tag: "DETECT", caption: "Heat warning × feeder outage on overlapping counties - crisis level 5/5." },
   { t: 4.2, tag: "INGEST", caption: "Offers and requests arrive as plain SMS. No app, no account, no training." },
   { t: 8.8, tag: "APPROVE", caption: "One WhatsApp ping to a volunteer captain. Two buttons. A human decides." },
-  { t: 11.8, tag: "DELIVER", caption: "Generator to 42 Maple St — 1.2 km, ~7 min — confirmed and closed out." },
+  { t: 11.8, tag: "DELIVER", caption: "Generator to 42 Maple St - 1.2 km, ~7 min - confirmed and closed out." },
 ];
 
 const CYCLE = [
   { n: "01", word: "WATCH", body: "Feeds polled, hazards correlated, crisis scored. Feed failure means \"no change\", never \"all clear\"." },
   { n: "02", word: "LISTEN", body: "Community texts parsed into offers and urgent requests, on the board in seconds." },
-  { n: "03", word: "MATCH", body: "Supply paired to need — urgency first, then vulnerability, then distance. Never double-booked." },
+  { n: "03", word: "MATCH", body: "Supply paired to need - urgency first, then vulnerability, then distance. Never double-booked." },
   { n: "04", word: "APPROVE", body: "Route planned, hazards flagged, one captain pinged. Silence otherwise." },
 ];
 
 const SERVES = [
-  { title: "Neighborhood blocks", body: "A block captain, a WhatsApp group, and whatever's in the garages — organized the moment the grid fails." },
+  { title: "Neighborhood blocks", body: "A block captain, a WhatsApp group, and whatever's in the garages - organized the moment the grid fails." },
   { title: "Food banks", body: "Perishables and cold-chain capacity matched to households that lose refrigeration in an outage." },
   { title: "Shelters", body: "Cooling, power, and transport needs surfaced and staffed without another spreadsheet." },
   { title: "Mutual-aid networks", body: "Volunteer capacity dispatched with routes and hazard guidance instead of group-chat chaos." },
@@ -89,7 +89,12 @@ export default function Landing() {
   return (
     <div className="min-h-screen overflow-x-clip">
       {/* ── Nav ── */}
-      <nav className="mx-auto flex max-w-7xl items-center gap-8 px-6 py-5">
+      {/* Side space is 75% of what the max-w-7xl + px-6 layout gives at any
+          width: 18px below 1280px, then 0.75 × ((viewport − 1280) / 2 + 24px). */}
+      <nav
+        className="sticky top-0 z-50 flex items-center gap-8 border-b border-line/60 bg-ground/90 py-5 backdrop-blur"
+        style={{ paddingInline: "max(18px, calc(0.75 * ((100vw - 1280px) / 2 + 24px)))" }}
+      >
         <span className="font-display text-2xl uppercase leading-none tracking-wide">
           Resqio<span className="text-accent">.</span>
         </span>
@@ -98,20 +103,13 @@ export default function Landing() {
           <a href="#scenario" className="transition-colors hover:text-ink">Scenario</a>
           <a href="#modes" className="transition-colors hover:text-ink">Run it</a>
           <a href="#faq" className="transition-colors hover:text-ink">FAQ</a>
-          <a href={GITHUB} className="transition-colors hover:text-ink">GitHub</a>
         </div>
-        <Link
-          href="/board"
-          className="bg-accent px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-ground transition-colors hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-        >
-          Launch App
-        </Link>
       </nav>
 
       {/* ── Hero ── */}
       <header className="mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 pt-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
         <div>
-          <Eyebrow>Autonomous disaster logistics — open source</Eyebrow>
+          <Eyebrow>Autonomous disaster logistics - open source</Eyebrow>
           <h1 className="mt-6 font-display text-5xl uppercase leading-[0.95] tracking-wide sm:text-6xl xl:text-7xl">
             Built for neighbors,
             <br />
@@ -120,7 +118,7 @@ export default function Landing() {
           <p className="mt-7 max-w-[52ch] text-lg leading-relaxed text-muted">
             Resqio watches weather and grid feeds 24/7, matches spare
             generators, ice, and food to the most vulnerable requests texted in
-            over plain SMS — and pings a volunteer captain on WhatsApp only
+            over plain SMS - and pings a volunteer captain on WhatsApp only
             when a delivery needs a human yes.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -198,7 +196,7 @@ export default function Landing() {
             <p className="mt-7 max-w-[56ch] leading-relaxed text-muted">
               During a disaster, the last thing a community needs is another
               feed to monitor. Resqio produces no dashboards to babysit and no
-              alerts to triage. It works in the background — and the only time
+              alerts to triage. It works in the background - and the only time
               a phone buzzes is when a physical delivery needs a one-tap
               approval from a volunteer captain. No crisis, no noise.
             </p>
@@ -212,7 +210,7 @@ export default function Landing() {
           <div className="flex flex-col justify-center gap-4">
             <figure className="border border-line bg-ground p-7">
               <figcaption className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-                Inbound SMS — demo scenario
+                Inbound SMS - demo scenario
               </figcaption>
               <blockquote className="mt-4 font-mono text-lg leading-relaxed text-ink">
                 &ldquo;HELP: My father is 82, insulin needs refrigeration and
@@ -254,7 +252,7 @@ export default function Landing() {
             Real crisis. <span className="text-outline">Real logistics.</span>
           </h2>
           <p className="mt-5 max-w-[62ch] leading-relaxed text-muted">
-            Four moments from the Austin heatwave scenario — the same loop the
+            Four moments from the Austin heatwave scenario - the same loop the
             live animation above plays end to end, and the same one you can
             drive yourself on the situation board.
           </p>

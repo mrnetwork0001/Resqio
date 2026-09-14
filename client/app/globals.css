@@ -4,6 +4,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Anchor jumps land below the sticky landing-page header. */
+  scroll-padding-top: 80px;
 }
 
 ::selection {
