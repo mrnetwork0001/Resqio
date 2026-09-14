@@ -5,9 +5,9 @@ Use your own voice (no AI voice). Screen recording only; you don't need to appea
 
 ## Before you record
 
-- [ ] Backend running: `python -m src.integrations.webhook_server` (port 5001)
-- [ ] Website running: `cd client && npm run dev` (open the port it prints, for example `localhost:3003`)
+- [ ] Open the live site, nothing to run locally: https://tryresqio.vercel.app (landing page) and https://tryresqio.vercel.app/board (situation board)
 - [ ] On the board, click **Reset** so it starts empty
+- [ ] Scenes 6-7 show the approval ping in the board's **Ping log** and the **Captain console** (real WhatsApp delivery needs a paid Twilio account)
 - [ ] Browser window about 1440px wide, zoom 100%, bookmarks bar hidden
 - [ ] Turn on macOS Focus mode so no notifications pop up
 - [ ] Open in tabs or windows: the landing page, the board, `architecture_diagram.png`, and `src/agents/strands_resource_matcher.py` in VS Code
