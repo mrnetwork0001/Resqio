@@ -95,9 +95,8 @@ export default function Landing() {
         className="sticky top-0 z-50 flex items-center gap-8 border-b border-line/60 bg-ground/90 py-5 backdrop-blur"
         style={{ paddingInline: "max(18px, calc(0.75 * ((100vw - 1280px) / 2 + 24px)))" }}
       >
-        <span className="font-display text-2xl uppercase leading-none tracking-wide">
-          Resqio<span className="text-accent">.</span>
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/resqio-header.png" alt="Resqio" width={720} height={198} className="h-9 w-auto" />
         <div className="ml-auto hidden items-center gap-7 font-mono text-xs uppercase tracking-wider text-muted md:flex">
           <a href="#system" className="transition-colors hover:text-ink">System</a>
           <a href="#scenario" className="transition-colors hover:text-ink">Scenario</a>

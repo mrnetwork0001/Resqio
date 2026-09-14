@@ -149,9 +149,10 @@ export default function Board() {
           <Link
             href="/"
             aria-label="Back to the Resqio landing page"
-            className="transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+            className="block transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
           >
-            RESQIO<span className="text-accent">.</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/resqio-header.png" alt="Resqio" width={720} height={198} className="h-9 w-auto" />
           </Link>
         </h1>
         <span className="hidden font-mono text-[11px] uppercase tracking-[0.14em] text-muted sm:block">

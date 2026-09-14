@@ -53,24 +53,8 @@ export default function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-12 px-6 py-16 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         {/* ── Brand block ── */}
         <div>
-          <div className="flex items-center gap-4">
-            <span
-              aria-hidden="true"
-              className="relative flex h-12 w-12 items-center justify-center rounded-full border border-muted/40 font-display text-xl uppercase"
-            >
-              R
-              <span className="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-accent" />
-            </span>
-            <span className="h-10 w-px bg-line" aria-hidden="true" />
-            <span>
-              <span className="block font-display text-lg uppercase leading-tight tracking-[0.08em]">
-                Resqio
-              </span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.32em] text-muted">
-                Crisis Logistics
-              </span>
-            </span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/resqio-header.png" alt="Resqio - Community Response Agent" width={720} height={198} className="h-14 w-auto sm:h-16" />
           <p className="mt-6 max-w-[46ch] text-[15px] leading-relaxed text-muted">
             An autonomous disaster-logistics agent for neighborhoods, food
             banks, and volunteer groups. Weather and grid feeds watched 24/7,
