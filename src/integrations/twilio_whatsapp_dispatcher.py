@@ -31,7 +31,9 @@ class TwilioWhatsAppDispatcher:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
         self._client = None
-        if settings.twilio_configured and not settings.demo_mode:
+        # Live when Twilio is configured and either the deployment is live or
+        # real pings were explicitly requested alongside the demo scenario.
+        if settings.twilio_configured and (not settings.demo_mode or settings.real_pings):
             from twilio.rest import Client  # imported lazily so demo mode needs no Twilio at all
 
             self._client = Client(settings.twilio_account_sid, settings.twilio_auth_token)

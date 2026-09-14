@@ -74,6 +74,9 @@ class Settings:
     ping_log_limit: int = field(
         default_factory=lambda: int(_env("RESQIO_PING_LOG_LIMIT", "500"))
     )
+    # Send real Twilio pings even in demo mode (simulated feeds, real WhatsApp).
+    # Off by default so a configured .env never pings phones by accident.
+    real_pings: bool = field(default_factory=lambda: _bool("RESQIO_REAL_PINGS", False))
     zones_file: Path = field(
         default_factory=lambda: (
             p if (p := Path(_env("RESQIO_ZONES_FILE", str(PROJECT_ROOT / "data" / "zones.json")))).is_absolute()

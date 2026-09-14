@@ -7,6 +7,18 @@ from src.core.models import GeoPoint, ResourceOffer, ResourceRequest, ResourceTy
 from src.core.store import CommunityStore
 
 
+@pytest.fixture(autouse=True)
+def _no_real_side_effects(monkeypatch):
+    """.env may hold real Twilio and AWS credentials. Tests must never send a
+    WhatsApp message or call Bedrock, so strip them for every test."""
+    for var in (
+        "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "RESQIO_CAPTAIN_NUMBERS", "RESQIO_REAL_PINGS",
+        "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN", "AWS_PROFILE",
+    ):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("AWS_EC2_METADATA_DISABLED", "true")
+
+
 @pytest.fixture()
 def settings(tmp_path):
     return Settings(store_path=tmp_path / "store.json", demo_mode=True)
