@@ -19,7 +19,7 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Resqio — Autonomous Community Crisis Logistics",
+  title: "Resqio - Autonomous Community Crisis Logistics",
   description:
     "An AI agent that watches weather and grid feeds 24/7, matches neighbors' spare resources to urgent needs over SMS, and pings volunteers on WhatsApp only when a delivery needs human approval.",
 };

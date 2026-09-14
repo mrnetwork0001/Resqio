@@ -1,4 +1,4 @@
-"""StrandsResourceMatcher — Agent 2: supply↔need matching with spatial reasoning.
+"""StrandsResourceMatcher - Agent 2: supply↔need matching with spatial reasoning.
 
 Two responsibilities:
 1. Parse raw community SMS ("Generator available in Sector 4" / "Insulin ice
@@ -50,7 +50,7 @@ food does not.
 3. Proximity: shorter volunteer trips are safer trips during a disaster. Use your distance tool.
 4. Zones are hard boundaries: only match an offer to a request in the SAME zone (an entry in \
 zone 'default' may match any zone). Volunteers serve their own neighborhood.
-5. One offer serves one request at a time — never double-book an offer.
+5. One offer serves one request at a time - never double-book an offer.
 
 Only propose matches you would defend to a volunteer captain in one sentence. Requests that \
 nothing can serve go in unmet_request_ids so captains can escalate them."""
@@ -59,7 +59,7 @@ PARSE_SYSTEM_PROMPT = """You parse raw SMS messages sent by neighbors to Resqio,
 disaster logistics service. Classify each message as an offer of help, a request for help, an \
 ACCEPT/PASS/DELIVERED reply from a volunteer, or unknown. Extract the resource type, urgency \
 (1-5, where insulin/medical refrigeration, infants, and elderly with no power are 4-5), any \
-vulnerability, and a street address if present. Messages are informal — read them like a \
+vulnerability, and a street address if present. Messages are informal - read them like a \
 neighbor would."""
 
 # What an offered resource type can serve.
@@ -101,7 +101,7 @@ _ADDRESS_RE = re.compile(
     rf"\b(\d{{1,5}}\s+[A-Za-z][A-Za-z'\.]*(?:\s+[A-Za-z][A-Za-z'\.]*)?\s+{_STREET_SUFFIX})\b",
     re.IGNORECASE,
 )
-# "I'm near Springdale Rd" — no street number, still a usable pickup point.
+# "I'm near Springdale Rd" - no street number, still a usable pickup point.
 _NEAR_RE = re.compile(
     rf"\bnear\s+([A-Za-z][A-Za-z'\.]*(?:\s+[A-Za-z][A-Za-z'\.]*)?\s+{_STREET_SUFFIX})\b",
     re.IGNORECASE,
@@ -115,7 +115,7 @@ def heuristic_parse(body: str) -> ParsedInboundMessage:
     description = re.sub(r"^\s*(offer|help|need|request)\s*[:\-]\s*", "", text, flags=re.IGNORECASE)
     lower = text.lower()
 
-    # A captain reply must LEAD with the verb or carry a match id — a
+    # A captain reply must LEAD with the verb or carry a match id - a
     # neighbor writing "can you pass this along, we need water" is a
     # request, not a PASS.
     match_id = _MATCH_ID_RE.search(text)
@@ -213,7 +213,7 @@ class StrandsResourceMatcher:
     def __init__(self, settings: Settings, store: CommunityStore, zones=None) -> None:
         self._settings = settings
         self.store = store
-        self._zones = zones  # ZoneRegistry | None — assigns inbound entries to service zones
+        self._zones = zones  # ZoneRegistry | None - assigns inbound entries to service zones
 
         @tool
         def list_open_offers() -> str:
@@ -266,7 +266,7 @@ class StrandsResourceMatcher:
             )
             result = parser(f"Parse this SMS:\n{body!r}", structured_output_model=ParsedInboundMessage)
             return result.structured_output
-        except Exception as exc:  # noqa: BLE001 — degraded mode must always parse
+        except Exception as exc:  # noqa: BLE001 - degraded mode must always parse
             logger.warning("LLM parse unavailable (%s); using keyword parser", exc)
             return heuristic_parse(body)
 
@@ -365,6 +365,6 @@ class StrandsResourceMatcher:
             )
             result = matcher(prompt, structured_output_model=MatchProposal)
             return result.structured_output
-        except Exception as exc:  # noqa: BLE001 — degraded mode must still match
+        except Exception as exc:  # noqa: BLE001 - degraded mode must still match
             logger.warning("Bedrock matching unavailable (%s); using heuristic matcher", exc)
             return heuristic_matches(self.store)

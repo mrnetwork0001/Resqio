@@ -1,7 +1,7 @@
 """End-to-end pipeline test in demo mode (no AWS, no Twilio, no network).
 
 The agents' Bedrock calls fail fast without credentials and drop to their
-deterministic fallbacks — which is exactly the degraded-mode path this
+deterministic fallbacks - which is exactly the degraded-mode path this
 verifies. With real AWS credentials the same test exercises live reasoning.
 """
 

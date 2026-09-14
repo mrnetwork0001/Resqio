@@ -1,8 +1,8 @@
-"""StrandsGridMonitor — Agent 1: 24/7 weather & power-grid crisis detection.
+"""StrandsGridMonitor - Agent 1: 24/7 weather & power-grid crisis detection.
 
 The daemon polls the feeds deterministically (a scheduler's job, not an
-LLM's); the Strands agent then reasons over the snapshot — correlating heat
-warnings with county outage records via FIPS codes — and returns a validated
+LLM's); the Strands agent then reasons over the snapshot - correlating heat
+warnings with county outage records via FIPS codes - and returns a validated
 ``CrisisAssessment``. If Bedrock is unreachable the monitor degrades to a
 severity-threshold heuristic: a disaster tool must keep working when the
 cloud is having a bad day too.
@@ -32,7 +32,7 @@ Your job each cycle:
 plus a 12,000-customer outage is worse than either alone, because cooling and medical \
 refrigeration fail exactly when they are most needed. Correlate weather alerts and outages that \
 share county FIPS codes.
-3. Summarize for volunteer captains in two plain sentences — no jargon, no drama.
+3. Summarize for volunteer captains in two plain sentences - no jargon, no drama.
 
 Be conservative: minor advisories with no outages are NOT a crisis. Life-safety combinations \
 (extreme heat + outage, hard freeze + outage) are."""
@@ -86,7 +86,7 @@ def heuristic_assessment(events: list[CrisisEvent]) -> CrisisAssessment:
     summary = (
         f"{len(active)} active event(s): {', '.join(hazards)}. "
         f"{customers_out:,} customers without power."
-        + (" Weather and outage zones overlap — compounding risk." if compounding else "")
+        + (" Weather and outage zones overlap - compounding risk." if compounding else "")
     )
     return CrisisAssessment(
         is_crisis=is_crisis, crisis_level=level,
@@ -127,7 +127,7 @@ class StrandsGridMonitor:
     def _safe_fetch_weather(self) -> list[CrisisEvent]:
         try:
             return self._weather_feed.fetch_active_alerts()
-        except Exception as exc:  # noqa: BLE001 — any feed failure means "keep last picture"
+        except Exception as exc:  # noqa: BLE001 - any feed failure means "keep last picture"
             logger.warning("weather feed fetch failed (%s); keeping last known state", exc)
             return [e for e in self.last_events if e.source == CrisisSource.NOAA]
 
@@ -173,6 +173,6 @@ class StrandsGridMonitor:
             assessment = result.structured_output
             logger.info("LLM assessment: crisis=%s level=%s", assessment.is_crisis, assessment.crisis_level)
             return assessment
-        except Exception as exc:  # noqa: BLE001 — degraded mode must always produce an answer
+        except Exception as exc:  # noqa: BLE001 - degraded mode must always produce an answer
             logger.warning("Bedrock assessment unavailable (%s); using heuristic fallback", exc)
             return heuristic_assessment(events)

@@ -3,7 +3,7 @@
 const ITEMS: { q: string; a: string }[] = [
   {
     q: "Does it work without AWS credentials?",
-    a: "Yes. Every agent has a deterministic degraded-mode fallback, so the full loop — detection, matching, routing, approval — runs offline with simulated feeds and console pings. That's how the demo and the 66-test suite run. Add AWS credentials and the same pipeline switches to live Claude reasoning on Amazon Bedrock.",
+    a: "Yes. Every agent has a deterministic degraded-mode fallback, so the full loop - detection, matching, routing, approval - runs offline with simulated feeds and console pings. That's how the demo and the 66-test suite run. Add AWS credentials and the same pipeline switches to live Claude reasoning on Amazon Bedrock.",
   },
   {
     q: "What happens if Bedrock is unreachable mid-disaster?",
@@ -15,15 +15,15 @@ const ITEMS: { q: string; a: string }[] = [
   },
   {
     q: "Can the agent dispatch a volunteer on its own?",
-    a: "Never. Every physical action passes through a one-tap human approval on WhatsApp, and the match lifecycle is a guarded state machine — a second captain's stale PASS can't reopen a delivery someone already accepted, and unanswered pings expire and free both sides for re-matching.",
+    a: "Never. Every physical action passes through a one-tap human approval on WhatsApp, and the match lifecycle is a guarded state machine - a second captain's stale PASS can't reopen a delivery someone already accepted, and unanswered pings expire and free both sides for re-matching.",
   },
   {
     q: "Where does the outage data come from?",
-    a: "Weather alerts are live from NOAA's api.weather.gov. For power outages there is no free real-time national feed (EAGLE-I is restricted to government accounts; poweroutage.us is a paid API), so the grid source is a pluggable protocol shipping realistic EAGLE-I-schema county records — any utility API can implement the same two methods.",
+    a: "Weather alerts are live from NOAA's api.weather.gov. For power outages there is no free real-time national feed (EAGLE-I is restricted to government accounts; poweroutage.us is a paid API), so the grid source is a pluggable protocol shipping realistic EAGLE-I-schema county records - any utility API can implement the same two methods.",
   },
   {
     q: "Is it really open source?",
-    a: "Apache 2.0, the whole thing — the three Strands agents, the AgentCore runtime, the Twilio integration, the situation board, the tests, and the architecture docs. Fork it for your county.",
+    a: "Apache 2.0, the whole thing - the three Strands agents, the AgentCore runtime, the Twilio integration, the situation board, the tests, and the architecture docs. Fork it for your county.",
   },
 ];
 

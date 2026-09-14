@@ -1,4 +1,4 @@
-"""ResqioPipeline — the silent background loop tying the three agents together.
+"""ResqioPipeline - the silent background loop tying the three agents together.
 
 One cycle:  poll feeds → assess crisis → (if crisis) match resources →
 plan routes → ping captains for approval.  No crisis, no noise: the pipeline
@@ -82,10 +82,10 @@ class ResqioPipeline:
         self.last_cycle_at = utcnow()
 
         if not assessment.is_crisis:
-            logger.info("cycle: calm (level %s) — staying silent", assessment.crisis_level)
+            logger.info("cycle: calm (level %s) - staying silent", assessment.crisis_level)
             return report
 
-        logger.info("cycle: CRISIS level %s — activating logistics", assessment.crisis_level)
+        logger.info("cycle: CRISIS level %s - activating logistics", assessment.crisis_level)
         for match in self.matcher.propose_matches(assessment):
             # One bad match (routing error, dispatch error) must not stop
             # the rest of the cycle or kill the 24/7 loop.
@@ -132,7 +132,7 @@ class ResqioPipeline:
             return self._handle_reply(result)
         if isinstance(result, ResourceOffer):
             logger.info("ingested offer %s from %s", result.id, name)
-            return "Resqio: got it — your offer is on the community board. We'll ping you only if a neighbor needs it."
+            return "Resqio: got it - your offer is on the community board. We'll ping you only if a neighbor needs it."
         logger.info("ingested request %s from %s", result.id, name)
         return "Resqio: your request is logged. We're matching it against nearby offers and will confirm shortly."
 
@@ -162,23 +162,23 @@ class ResqioPipeline:
             logger.info("stale %s reply for match %s (already %s)", parsed.kind, match.id, match.status.value)
             return (
                 f"Resqio: match {match.id} is already {match.status.value.replace('_', ' ')} "
-                "— no change made."
+                "- no change made."
             )
         if parsed.kind == "accept":
             logger.info("match %s APPROVED by captain", match.id)
-            return f"Resqio: match {match.id} approved ✔ — reply DELIVERED {match.id} once the drop-off is done. Stay safe."
+            return f"Resqio: match {match.id} approved ✔ - reply DELIVERED {match.id} once the drop-off is done. Stay safe."
         if parsed.kind == "pass":
             logger.info("match %s declined; both sides reopened", match.id)
-            return f"Resqio: match {match.id} passed — the offer and request are back on the board for re-matching."
+            return f"Resqio: match {match.id} passed - the offer and request are back on the board for re-matching."
         logger.info("match %s DELIVERED", match.id)
-        return f"Resqio: delivery {match.id} confirmed 🎉 — thank you."
+        return f"Resqio: delivery {match.id} confirmed 🎉 - thank you."
 
     # ── Status (dashboard / AgentCore status action) ─────────────────
 
     def status(self) -> dict:
         return {
             "demo_mode": self.settings.demo_mode,
-            # Rosters are private — the unauthenticated dashboard never sees numbers.
+            # Rosters are private - the unauthenticated dashboard never sees numbers.
             "zones": [z.model_dump(exclude={"captain_numbers"}) for z in self.zones.zones.values()],
             "open_offers": len(self.store.open_offers()),
             "open_requests": len(self.store.open_requests()),

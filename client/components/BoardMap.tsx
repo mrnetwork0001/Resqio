@@ -1,7 +1,7 @@
 "use client";
 
 // Community ops map: offers, requests, active match lines, and zone
-// circles on a dark basemap. CircleMarkers only — no icon assets to
+// circles on a dark basemap. CircleMarkers only - no icon assets to
 // break under bundling. Loaded with ssr:false (Leaflet needs window).
 
 import { useEffect } from "react";
@@ -92,7 +92,7 @@ export default function BoardMap({
       {/* Esri dark gray canvas: keyless (CARTO's dark basemap now requires an API key). */}
       <TileLayer
         url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-        attribution='Tiles &copy; <a href="https://www.esri.com">Esri</a> &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution='Tiles &copy; <a href="https://www.esri.com">Esri</a> - Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         maxZoom={16}
       />
       <FitToData points={points} />

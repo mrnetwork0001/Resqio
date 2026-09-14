@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-// Resqio brand — brutalist emergency-ops: near-black ground, hi-vis safety
+// Resqio brand - brutalist emergency-ops: near-black ground, hi-vis safety
 // yellow accent (hazard tape, emergency vests), paper cards, warm greys.
 // ok/warn/danger/info stay semantic for the situation board.
 const config: Config = {

@@ -1,4 +1,4 @@
-"""CommunityStore — the shared board of offers, requests, and matches.
+"""CommunityStore - the shared board of offers, requests, and matches.
 
 In-memory with JSON snapshot persistence so the daemon survives restarts and
 the AgentCore runtime can rehydrate between invocations. Not a database on
@@ -9,7 +9,7 @@ AgentCore runtime, the webhook server with its embedded poll loop, or the
 standalone daemon). The RLock covers threads within that process; it cannot
 arbitrate between processes.
 
-Match lifecycle is a guarded state machine — a captain's stale PASS must
+Match lifecycle is a guarded state machine - a captain's stale PASS must
 never reopen a delivery someone already accepted:
 
     proposed → pending_approval → approved → delivered
@@ -135,7 +135,7 @@ class CommunityStore:
                 )
             match.status = status
             # A declined/expired match frees both sides for re-matching; a
-            # delivered one closes them. Only touch entries still MATCHED —
+            # delivered one closes them. Only touch entries still MATCHED -
             # entries closed or re-booked by another match are not ours.
             if status in (MatchStatus.DECLINED, MatchStatus.EXPIRED):
                 self._release_entries(match, EntryStatus.OPEN)
@@ -181,7 +181,7 @@ class CommunityStore:
     def _load(self) -> None:
         try:
             raw = json.loads(self._path.read_text())
-        except Exception as exc:  # noqa: BLE001 — a corrupt file must not brick startup
+        except Exception as exc:  # noqa: BLE001 - a corrupt file must not brick startup
             quarantine = self._path.with_name(f"{self._path.name}.corrupt-{int(time.time())}")
             self._path.replace(quarantine)
             logger.error(
@@ -200,6 +200,6 @@ class CommunityStore:
             try:
                 item = model.model_validate(record)
                 loaded[item.id] = item
-            except Exception as exc:  # noqa: BLE001 — one bad record must not discard the rest
+            except Exception as exc:  # noqa: BLE001 - one bad record must not discard the rest
                 logger.error("skipping invalid %s record %s (%s)", model.__name__, record.get("id"), exc)
         return loaded

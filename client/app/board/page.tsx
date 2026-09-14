@@ -161,7 +161,7 @@ export default function Board() {
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <span className="mr-2 font-mono text-[11px] text-muted">
             {offline
-              ? "runtime offline — start `python -m src.integrations.webhook_server`"
+              ? "runtime offline - start `python -m src.integrations.webhook_server`"
               : status?.last_cycle_at
                 ? `last cycle ${new Date(status.last_cycle_at).toLocaleTimeString()}`
                 : "no cycle yet"}
@@ -284,7 +284,7 @@ export default function Board() {
         <Panel title="Dispatch" hint={`${matches.length} matches · ${pings.length} pings`}>
           <div className="flex flex-col gap-4">
             {matches.length === 0 ? (
-              <Empty>No matches yet — run a cycle during a crisis.</Empty>
+              <Empty>No matches yet - run a cycle during a crisis.</Empty>
             ) : (
               <ul className="flex flex-col gap-2">
                 {matches.map((m: Match) => (
@@ -357,7 +357,7 @@ export default function Board() {
       </main>
 
       <footer className="flex flex-wrap gap-x-6 gap-y-1 border-t border-line pt-3 font-mono text-[11px] text-muted">
-        <span>Resqio · silent background agent — this board is read-only observability plus demo controls</span>
+        <span>Resqio · silent background agent - this board is read-only observability plus demo controls</span>
         <span>{status?.demo_mode ? "DEMO MODE (simulated feeds, console pings)" : "LIVE MODE"}</span>
       </footer>
     </div>

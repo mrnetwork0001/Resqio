@@ -1,4 +1,4 @@
-"""Zones — multi-county deployments with per-zone captain rosters.
+"""Zones - multi-county deployments with per-zone captain rosters.
 
 A zone is a service area: a name, the NOAA area to watch, its associated
 county FIPS codes (reserved for outage-to-zone attribution), a centroid +
@@ -8,7 +8,7 @@ captain roster.
 Zones load from a JSON file (``RESQIO_ZONES_FILE``, default
 ``data/zones.json``); demo mode falls back to the bundled demo zones.
 With no file present, Resqio runs exactly as before: one implicit zone
-built from the flat settings — fully backwards compatible. Entries with
+built from the flat settings - fully backwards compatible. Entries with
 zone ``"default"`` (including anything stored before zones were enabled)
 match against any zone.
 """
@@ -77,7 +77,7 @@ class ZoneRegistry:
                     logger.warning("zones file %s has no zones; trying next source", path)
                     continue
                 # A non-first zone without a centroid can never be assigned an
-                # entry — its roster would silently never be pinged.
+                # entry - its roster would silently never be pinged.
                 for zone in zones[1:]:
                     if zone.center is None:
                         logger.warning(
@@ -90,7 +90,7 @@ class ZoneRegistry:
                     fallback_captains=settings.captain_numbers,
                     fallback_noaa_area=settings.noaa_area,
                 )
-            except Exception as exc:  # noqa: BLE001 — a bad zones file must not stop monitoring
+            except Exception as exc:  # noqa: BLE001 - a bad zones file must not stop monitoring
                 logger.error("failed to load zones file %s (%s); using single-zone mode", path, exc)
                 break
         implicit = Zone(
@@ -129,7 +129,7 @@ class ZoneRegistry:
 
     def noaa_areas(self) -> list[str]:
         """Unique NOAA areas across zones, always including the configured
-        fallback area — a zones file must never silently stop the deployment
+        fallback area - a zones file must never silently stop the deployment
         from watching its own state (one comma-joined API query)."""
         seen: list[str] = []
         if self._fallback_noaa_area:

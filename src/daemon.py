@@ -1,10 +1,10 @@
-"""Local 24/7 polling daemon — the clean-Python fallback to AgentCore.
+"""Local 24/7 polling daemon - the clean-Python fallback to AgentCore.
 
     python -m src.daemon              # poll forever at POLL_INTERVAL_SECONDS
     python -m src.daemon --cycles 3   # bounded run (demos, smoke tests)
 
 The store is single-writer: do NOT run this alongside the webhook server on
-the same store file — the webhook server already embeds this poll loop, so
+the same store file - the webhook server already embeds this poll loop, so
 for live inbound SMS use `python -m src.integrations.webhook_server` alone.
 """
 
@@ -29,7 +29,7 @@ def main() -> None:
     pipeline = ResqioPipeline()
     interval = args.interval or pipeline.settings.poll_interval_seconds
     logger.info(
-        "Resqio daemon up: area=%s interval=%ss demo_mode=%s — silent until a match needs approval",
+        "Resqio daemon up: area=%s interval=%ss demo_mode=%s - silent until a match needs approval",
         pipeline.settings.noaa_area, interval, pipeline.settings.demo_mode,
     )
 

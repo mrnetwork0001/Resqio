@@ -10,12 +10,12 @@ GET /ping on :8080). Payload actions:
     {"action": "inbound_sms", "body": "...", "from": "+1...", "name": "..."}
     {"action": "status"}
 
-Long-running rule honored here: the entrypoint thread never blocks — daemon
+Long-running rule honored here: the entrypoint thread never blocks - daemon
 work runs on a background thread tracked with add_async_task/complete_async_task
 so /ping stays responsive (a blocked ping is the classic cause of 15-minute
 session terminations).
 
-Deploy (npm AgentCore CLI — the pip starter-toolkit CLI is deprecated):
+Deploy (npm AgentCore CLI - the pip starter-toolkit CLI is deprecated):
     npm install -g @aws/agentcore
     agentcore create --name Resqio --framework Strands --protocol HTTP --model-provider Bedrock
     # `create` scaffolds a wrapper project; point its runtime entrypoint at
@@ -64,7 +64,7 @@ def _run_daemon(task_id: int, cycles: int, interval_seconds: int) -> None:
                     cycle_number, cycles,
                     report.assessment.is_crisis, len(report.new_matches), len(report.pings),
                 )
-            except Exception:  # noqa: BLE001 — one bad cycle must not abort the rest
+            except Exception:  # noqa: BLE001 - one bad cycle must not abort the rest
                 logger.exception("daemon cycle %d/%d failed; continuing", cycle_number, cycles)
             if cycle_number < cycles:
                 time.sleep(interval_seconds)

@@ -1,4 +1,4 @@
-"""Twilio inbound webhook + dashboard API server — the single local live runtime.
+"""Twilio inbound webhook + dashboard API server - the single local live runtime.
 
     python -m src.integrations.webhook_server   # serves :5001 AND runs the poll loop
 
@@ -6,7 +6,7 @@ This process owns the community store: it ingests inbound messages on
 POST /sms, serves the Next.js dashboard's JSON API, and runs the background
 monitor→match→route→ping loop on an embedded thread (disable with
 RESQIO_POLL_IN_WEBHOOK=0). Do NOT run `python -m src.daemon` against the
-same store file at the same time — the JSON-snapshot store is single-writer,
+same store file at the same time - the JSON-snapshot store is single-writer,
 and two processes would silently overwrite each other's board.
 
 Routes:
@@ -104,7 +104,7 @@ async def demo_seed(request: Request) -> JSONResponse:
     if (blocked := _demo_only()) is not None:
         return blocked
     if pipeline.store.offers or pipeline.store.requests:
-        return JSONResponse({"seeded": 0, "note": "board already has entries — reset first"})
+        return JSONResponse({"seeded": 0, "note": "board already has entries - reset first"})
     fixture = pipeline.settings.demo_dir / "community_messages.json"
     messages = json.loads(fixture.read_text())["messages"]
     seeded = []
@@ -168,7 +168,7 @@ def _poll_loop() -> None:
                 report.assessment.is_crisis, report.assessment.crisis_level,
                 len(report.new_matches), len(report.pings),
             )
-        except Exception:  # noqa: BLE001 — the 24/7 loop survives any single bad cycle
+        except Exception:  # noqa: BLE001 - the 24/7 loop survives any single bad cycle
             logger.exception("cycle failed; continuing")
         time.sleep(interval)
 

@@ -1,8 +1,8 @@
 "use client";
 
 // Always-on hero motion: Resqio's actual loop played on a stylized city
-// grid — alert → outage → community texts → match → approval ping →
-// delivery — looping every 14 s. Pure canvas, no video asset; honors
+// grid - alert → outage → community texts → match → approval ping →
+// delivery - looping every 14 s. Pure canvas, no video asset; honors
 // prefers-reduced-motion by rendering one representative still frame.
 
 import { useEffect, useRef } from "react";
@@ -143,7 +143,7 @@ export default function HeroAnimation({ frozenAt }: { frozenAt?: number }) {
         ctx.fillRect(0, 0, W, H);
       }
 
-      // ── monitoring sweep (always on — the agent never sleeps) ──
+      // ── monitoring sweep (always on - the agent never sleeps) ──
       const sweep = (t * 0.55) % (Math.PI * 2);
       ctx.save();
       ctx.translate(W - 64, 64);
@@ -170,7 +170,7 @@ export default function HeroAnimation({ frozenAt }: { frozenAt?: number }) {
         const y = 16 - (1 - alertIn) * 12;
         const w1 = chip(16, y, "EXCESSIVE HEAT WARNING", C.ink, C.card, 10);
         chip(16 + w1 + 6, y, "EXTREME", "#ffd9db", "rgba(229,72,77,0.35)", 10);
-        chip(16, y + 26, "FEEDER OUTAGE — 12,400 OUT", "#ffe9c9", "rgba(220,174,60,0.22)", 10);
+        chip(16, y + 26, "FEEDER OUTAGE - 12,400 OUT", "#ffe9c9", "rgba(220,174,60,0.22)", 10);
         ctx.globalAlpha = 1;
       }
 
@@ -286,12 +286,12 @@ export default function HeroAnimation({ frozenAt }: { frozenAt?: number }) {
       ctx.font = mono(9);
       ctx.fillStyle = C.muted;
       const phase =
-        t < 1.5 ? "MONITORING — NOAA ALERTS + GRID FEED"
-        : t < 4.4 ? "CRISIS DETECTED — INGESTING COMMUNITY TEXTS"
-        : t < 6.6 ? "MATCHING SUPPLY TO NEED — URGENCY × DISTANCE"
-        : t < 9.2 ? "HUMAN APPROVAL — ONE TAP, NOTHING ELSE"
-        : t < 12.5 ? "VOLUNTEER EN ROUTE — HAZARD-AWARE GUIDANCE"
-        : "STANDING DOWN — BACK TO SILENT WATCH";
+        t < 1.5 ? "MONITORING - NOAA ALERTS + GRID FEED"
+        : t < 4.4 ? "CRISIS DETECTED - INGESTING COMMUNITY TEXTS"
+        : t < 6.6 ? "MATCHING SUPPLY TO NEED - URGENCY × DISTANCE"
+        : t < 9.2 ? "HUMAN APPROVAL - ONE TAP, NOTHING ELSE"
+        : t < 12.5 ? "VOLUNTEER EN ROUTE - HAZARD-AWARE GUIDANCE"
+        : "STANDING DOWN - BACK TO SILENT WATCH";
       ctx.fillText(phase, 16, H - 14);
 
       if (!reduced) raf = requestAnimationFrame(draw);

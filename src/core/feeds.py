@@ -80,9 +80,9 @@ class GridFeed(Protocol):
 class NOAAAlertFeed:
     """Polls NWS active alerts for one or more states via api.weather.gov.
 
-    Multi-zone deployments pass several areas — the API takes them as one
+    Multi-zone deployments pass several areas - the API takes them as one
     comma-separated query. A fetch failure means "no change", never
-    "no alerts" — the daemon must not stand down community logistics
+    "no alerts" - the daemon must not stand down community logistics
     because the API had a bad minute.
     """
 
@@ -143,7 +143,7 @@ class SimulatedGridFeed:
                     source=CrisisSource.GRID,
                     event=outage.get("event", "Power Outage"),
                     severity=severity_for_customers_out(customers_out),
-                    headline=f"{customers_out:,} customers without power — {area}",
+                    headline=f"{customers_out:,} customers without power - {area}",
                     description=outage.get("cause", ""),
                     area_desc=outage.get("area_detail", area),
                     fips_codes=[outage["fips_code"]] if outage.get("fips_code") else [],

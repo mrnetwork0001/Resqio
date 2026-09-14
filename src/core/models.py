@@ -93,7 +93,7 @@ class GeoPoint(BaseModel):
 
 class CrisisEvent(BaseModel):
     id: str = Field(default_factory=lambda: _new_id("evt"))
-    external_id: str = ""  # NWS alert id — dedupe key across polls
+    external_id: str = ""  # NWS alert id - dedupe key across polls
     source: CrisisSource
     event: str  # e.g. "Excessive Heat Warning", "Feeder outage"
     severity: Severity = Severity.UNKNOWN

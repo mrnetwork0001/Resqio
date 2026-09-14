@@ -1,9 +1,9 @@
-"""StrandsVolunteerRouter — Agent 3: safe transit routing + approval pings.
+"""StrandsVolunteerRouter - Agent 3: safe transit routing + approval pings.
 
 Given a proposed match, produces a ``RoutePlan``: distance, crisis-condition
 time estimate, hazards the volunteer must know about, and the exact
 WhatsApp/SMS text a captain sees. The ping always ends with
-``ACCEPT <match_id>`` / ``PASS <match_id>`` reply options — the single
+``ACCEPT <match_id>`` / ``PASS <match_id>`` reply options - the single
 human-in-the-loop moment in an otherwise fully background pipeline.
 """
 
@@ -32,7 +32,7 @@ volunteer captain must approve the delivery. Your job:
 
 1. Estimate the trip (straight-line distance is available via your tool; assume ~30 km/h \
 crisis-condition driving plus 5 minutes for loading).
-2. List hazards along the way from the active event list — heat exposure, flooded roads, downed \
+2. List hazards along the way from the active event list - heat exposure, flooded roads, downed \
 lines, dark intersections during outages. Give one concrete safety instruction per hazard.
 3. Write the approval ping: under 320 characters, plain language, states WHAT to bring, WHERE \
 (street address), WHY it matters (urgency/vulnerability), the distance/time estimate, and ends \
@@ -52,7 +52,7 @@ _HAZARD_GUIDANCE: list[tuple[tuple[str, ...], str]] = [
 
 
 def _trim_words(text: str, limit: int) -> str:
-    """Truncate at a word boundary — captains read this text mid-crisis."""
+    """Truncate at a word boundary - captains read this text mid-crisis."""
     text = text.strip()
     if len(text) <= limit:
         return text
@@ -90,7 +90,7 @@ def fallback_route_plan(
         f"🚨 Resqio: {offer.resource_type.value} needed for {need} "
         f"({request.vulnerability.value}, urgency {request.urgency}/5). "
         f"Bring {item} from {pickup} to {dropoff} "
-        f"— {distance_km} km, ~{est_minutes:.0f} min. "
+        f"- {distance_km} km, ~{est_minutes:.0f} min. "
         f"Reply ACCEPT {match.id} or PASS {match.id}"
     )
     return RoutePlan(
@@ -157,6 +157,6 @@ class StrandsVolunteerRouter:
                     f". Reply ACCEPT {match.id} or PASS {match.id}"
                 )
             return plan
-        except Exception as exc:  # noqa: BLE001 — degraded mode must still route
+        except Exception as exc:  # noqa: BLE001 - degraded mode must still route
             logger.warning("Bedrock routing unavailable (%s); using fallback planner", exc)
             return fallback_route_plan(match, offer, request, hazards)

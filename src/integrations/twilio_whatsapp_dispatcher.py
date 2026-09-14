@@ -1,4 +1,4 @@
-"""Twilio WhatsApp/SMS dispatcher — Resqio's ONLY outward-facing surface.
+"""Twilio WhatsApp/SMS dispatcher - Resqio's ONLY outward-facing surface.
 
 The agent pipeline runs 100% silently; this module fires exactly one kind of
 outbound message: an approval ping to volunteer captains when a delivery
@@ -60,7 +60,7 @@ class TwilioWhatsAppDispatcher:
             if sendable:
                 try:
                     ping = self._send_via_twilio(match_id, captain, message_body)
-                except Exception as exc:  # noqa: BLE001 — one bad number must not strand the match
+                except Exception as exc:  # noqa: BLE001 - one bad number must not strand the match
                     logger.error("Twilio send to %s failed (%s); falling back to console", captain, exc)
                     ping = self._send_via_console(match_id, captain, message_body)
             else:
