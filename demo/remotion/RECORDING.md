@@ -37,9 +37,16 @@ The video is fully built and timed to a scratch narration. You record the same 1
 2. **Put them in** `demo/remotion/recordings/`. That folder is gitignored, so your recordings never go to GitHub.
 3. From `demo/remotion/`, run:
    ```bash
-   npm run vo:human   # trims, normalizes loudness, re-times every scene, prints the film length
-   npm run render     # writes out/resqio-demo.mp4
+   python scripts/align_recordings.py   # checks each take against its line, finds exact word timings (offline, needs faster-whisper)
+   npm run vo:human                     # trims to your words, cleans up and matches loudness, re-times every scene
+   npm run render                       # writes out/resqio-demo.mp4
    ```
-4. The **"Scratch narration · not final"** tag in the corner disappears automatically once your recordings are in.
+   The alignment step prints a match score per take. A score below 90% is usually just the transcriber mishearing a name (like "Resqio"), but it also catches a misnamed file or a skipped phrase.
+4. **What happens to your voice:**
+   - Each take is cut 0.12s before your first word and 0.3s after your last word, so there's no dead air and no clipped syllables.
+   - It gets a gentle 80 Hz high-pass, light denoise and light compression.
+   - Every take is matched to -16 LUFS, so all 14 sound equally loud.
+   - On-screen reveals (the heat card, the agent nodes, "Fork it") land on the moment you say those words.
+5. The **"Scratch narration · not final"** tag in the corner disappears automatically once your recordings are in.
 
-**To redo one line** (for example `v03`), re-record it, replace the file, then run `node scripts/voiceover.mjs --source human --only v03` and `npm run render`.
+**To redo one line** (for example `v03`), re-record it, replace the file, then run `python scripts/align_recordings.py`, `node scripts/voiceover.mjs --source human --only v03` and `npm run render`.
