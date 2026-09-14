@@ -68,5 +68,5 @@ strands-agents, amazon-bedrock, amazon-bedrock-agentcore, claude, python, twilio
 ## Links
 
 - Code: https://github.com/mrnetwork0001/Resqio
-- Live demo: https://resqio.38.49.216.120.sslip.io
+- Live demo: https://tryresqio.vercel.app
 - Demo video: ADD-YOUTUBE-URL

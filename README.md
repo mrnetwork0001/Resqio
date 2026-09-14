@@ -16,7 +16,7 @@
 
 Built for the **AWS Agents for Humans Hackathon** · Good Neighbor Agents track
 
-### ▶ [Live demo](https://resqio.38.49.216.120.sslip.io) · [Open the situation board](https://resqio.38.49.216.120.sslip.io/board)
+### ▶ [Live demo](https://tryresqio.vercel.app) · [Open the situation board](https://tryresqio.vercel.app/board)
 
 <img src="docs/images/landing.png" alt="Resqio landing page: 'Built for neighbors, run by AI agents' with the live pipeline animation" width="850">
 

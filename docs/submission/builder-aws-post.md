@@ -93,7 +93,7 @@ I'd love to pilot Resqio with a neighborhood mutual-aid network, add playbooks f
 Resqio is open source under Apache 2.0:
 
 - **Code:** https://github.com/mrnetwork0001/Resqio
-- **Live demo:** https://resqio.38.49.216.120.sslip.io
+- **Live demo:** https://tryresqio.vercel.app
 - **Demo video:** ADD-YOUTUBE-URL
 
 The next storm isn't waiting. Fork it for your county.
