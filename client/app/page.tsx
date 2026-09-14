@@ -74,7 +74,7 @@ const DEMO_FEATURES = [
   "Simulated NOAA + EAGLE-I-schema feeds",
   "Console-rendered WhatsApp pings",
   "Deterministic agent fallbacks",
-  "66-test suite, zero credentials",
+  "77-test suite, zero credentials",
 ];
 
 const LIVE_FEATURES = [

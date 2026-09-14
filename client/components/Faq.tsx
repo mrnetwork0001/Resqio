@@ -3,7 +3,7 @@
 const ITEMS: { q: string; a: string }[] = [
   {
     q: "Does it work without AWS credentials?",
-    a: "Yes. Every agent has a deterministic degraded-mode fallback, so the full loop - detection, matching, routing, approval - runs offline with simulated feeds and console pings. That's how the demo and the 66-test suite run. Add AWS credentials and the same pipeline switches to live Claude reasoning on Amazon Bedrock.",
+    a: "Yes. Every agent has a deterministic degraded-mode fallback, so the full loop - detection, matching, routing, approval - runs offline with simulated feeds and console pings. That's how the demo and the 77-test suite run. Add AWS credentials and the same pipeline switches to live Claude reasoning on Amazon Bedrock.",
   },
   {
     q: "What happens if Bedrock is unreachable mid-disaster?",
