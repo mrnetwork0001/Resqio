@@ -94,6 +94,6 @@ Resqio is open source under Apache 2.0:
 
 - **Code:** https://github.com/mrnetwork0001/Resqio
 - **Live demo:** https://tryresqio.vercel.app
-- **Demo video:** ADD-YOUTUBE-URL
+- **Demo video:** https://youtu.be/7n79CaCKzPY
 
 The next storm isn't waiting. Fork it for your county.
