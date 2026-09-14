@@ -25,3 +25,9 @@ out/
 # AgentCore build artifacts
 .bedrock_agentcore.yaml
 .bedrock_agentcore/
+demo/remotion/out/
+demo/remotion/public/clips/
+demo/remotion/public/vo/
+demo/remotion/vo-cache/
+demo/remotion/recordings/
+demo/remotion/clips-tmp/
